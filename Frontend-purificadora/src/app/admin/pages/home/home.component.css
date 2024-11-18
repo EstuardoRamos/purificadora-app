@@ -1,0 +1,84 @@
+/* cliente.component.css */
+.sidenav-container {
+  height: 100vh;
+}
+
+mat-toolbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-sidenav {
+  width: 200px;
+}
+
+.content {
+  padding: 20px;
+  margin-top: 64px; /* Altura de la toolbar */
+}
+
+.mdc-list-item__primary-text {
+  width: 50%;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item {
+  border-radius: var(--mat-list-active-indicator-shape);
+  --mat-mdc-focus-indicator-border-radius: var(
+    --mat-list-active-indicator-shape
+  );
+  height: 3rem;
+}
+
+.mat-list-item {
+  display: flex;
+  vertical-align: middle;
+  align-items: center;
+  padding: 2rem 3rem; /* Ajusta el espacio alrededor de los elementos */
+}
+
+.item-content {
+  pointer-events: auto;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+}
+
+.mat-list-icon,
+.mat-list-text {
+  /* display: inline-block;*/
+  vertical-align: middle; /* Alinea verticalmente los iconos */
+}
+
+.mat-list-icon {
+  margin-right: 2rem; /* Aumenta el espacio entre el icono y el texto */
+  font-size: 24px; /* Ajusta el tamaño del icono si es necesario */
+}
+
+.mat-icon {
+  font-size: 1.5rem;
+  width: auto;
+  height: auto;
+}
+
+.mat-mdc-icon-button .mdc-button__label,
+.mat-mdc-icon-button .mat-icon {
+  z-index: 1;
+  position: absolute;
+  right: -7px;
+  top: 4px;
+  font-size: 35px;
+}
+
+.nav-text {
+  padding: 0.85rem;
+  vertical-align: 0.4rem; /* Alinea verticalmente el texto */
+  line-height: 2rem; /* Alinea con el tamaño del icono */
+}

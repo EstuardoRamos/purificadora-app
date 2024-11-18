@@ -1,21 +1,25 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { RouterModule } from '@angular/router';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { MaterialModule } from './material/material.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent // Declaración de componentes principales
   ],
   imports: [
     BrowserModule,
-    CommonModule,
-    AppRoutingModule
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    MaterialModule,
+    FormsModule,
+    RouterModule.forRoot([]) // Configura rutas más adelante
   ],
   providers: [],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent], // Punto de inicio
 })
-export class AppModule { }
+export class AppModule {}
