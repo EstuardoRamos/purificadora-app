@@ -12,6 +12,8 @@ app.use(express.json());
 // Rutas
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/clientes", clienteRoutes);
+app.use("/api/categorias", categoriaRoutes);
+app.use("/api/productos", productoRoutes);
 
 // Sincronización de Sequelize con la base de datos
 sequelize.sync()

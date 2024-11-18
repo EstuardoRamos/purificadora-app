@@ -28,6 +28,7 @@ exports.getProductoById = async (req, res) => {
 exports.createProducto = async (req, res) => {
     const { nombre, descripcion, precio, estado, id_categoria } = req.body;
     try {
+        // Crear el producto
         const producto = await Producto.create({
             nombre,
             descripcion,
@@ -35,7 +36,14 @@ exports.createProducto = async (req, res) => {
             estado,
             id_categoria,
         });
-        res.status(201).json(producto);
+
+        // Crear automáticamente una entrada en inventario
+        await Inventario.create({
+            id_producto: producto.id_producto,
+            cantidad: 0, // Inicia con 0 cantidad por defecto
+        });
+
+        res.status(201).json({ message: "Producto creado con éxito", producto });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

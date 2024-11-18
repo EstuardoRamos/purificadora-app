@@ -36,7 +36,7 @@ CREATE TABLE cliente (
     telefono VARCHAR(15),
     coordenadas VARCHAR(100),
     id_aldea INT,
-    garradones_prestados,
+    garradones_prestados INT,
     FOREIGN KEY (id_aldea) REFERENCES aldea(id_aldea)
 );
 
