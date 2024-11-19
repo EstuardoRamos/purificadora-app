@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { Cliente } from '../../interfaces/cliente.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class ClientesService {
     private http: HttpClient,
   ) { }
 
-  obtenerClientes(){
+  getClientes(){
     return this.http.get(`${this.baseUrl}/clientes`);
   }
 
@@ -19,11 +20,11 @@ export class ClientesService {
     return this.http.get(`${this.baseUrl}/clientes/1`);
   }
 
-  crearCliente(){
-    return this.http.post(`${this.baseUrl}/clientes`, {})
+  crearCliente(cliente: Cliente){
+    return this.http.post(`${this.baseUrl}/clientes`, cliente)
   }
 
-  updateCliente(){
-    return this.http.put(`${this.baseUrl}/clientes/1`, {})
+  updateCliente(cliente: Cliente){
+    return this.http.put(`${this.baseUrl}/clientes/${cliente.id}`, cliente)
   }
 }

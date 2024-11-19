@@ -1,0 +1,57 @@
+/* Estilo General */
+.crud-card {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #1976d2;
+}
+
+/* Tabla */
+.clientes-table {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+th {
+  text-align: left;
+}
+
+mat-icon {
+  font-size: 20px;
+}
+
+/* Botón Nuevo Cliente */
+.nuevo-cliente-btn {
+  display: block;
+  margin: 16px auto;
+}
+
+/* Formulario */
+.form-card {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #161616;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}

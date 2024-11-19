@@ -10,6 +10,9 @@ import { FormsModule } from '@angular/forms';
 import { CrudProductosComponent } from './pages/crud-productos/crud-productos.component';
 import { ProductosService } from './services/productos.service';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterOutlet } from '@angular/router';
+import { CrudClientesComponent } from './pages/crud-clientes/crud-clientes.component';
+import { ClientesService } from './services/clientes.service';
 
 
 @NgModule({
@@ -17,17 +20,20 @@ import { HttpClientModule } from '@angular/common/http';
     HomeComponent,
     GestionUsuariosComponent,
     VentasComponent,
-    CrudProductosComponent
+    CrudProductosComponent,
+    CrudClientesComponent
   ],
   imports: [
     CommonModule,
     HttpClientModule,
     FormsModule,
     AdminRoutingModule,
-    MaterialModule
+    MaterialModule,
+    RouterOutlet
   ],
   providers:[
-    ProductosService
+    ProductosService,
+    ClientesService
   ]
 })
 export class AdminModule { }
