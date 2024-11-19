@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ProductosService } from '../../services/productos.service';
+import { Producto } from '../../../interfaces/producto.interface';
 
 @Component({
   selector: 'app-ventas',
@@ -6,6 +9,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./ventas.component.css'],
 })
 export class VentasComponent {
+
+  productos1: Producto[]=[]
+
+  constructor(
+    private productoService: ProductosService,
+    private router: Router
+  ){}
   // Lista de clientes
   clientes = [
     { nombre: 'Juan Pérez', ruta: 'Lunes', coordenadas: '19.432608, -99.133209', estado: 'desabastecido' },
@@ -68,5 +78,17 @@ export class VentasComponent {
   cancelarVenta() {
     this.mostrarFormularioVenta = false;
     this.resetVenta();
+  }
+
+
+  listarProductos(){
+    this.productoService.getProductos().subscribe({
+      next: (data) => {
+        this.productos1 = data as Producto[];
+      },
+      error: (error) => {
+        console.error(error.error.mensaje);
+      }
+    })
   }
 }

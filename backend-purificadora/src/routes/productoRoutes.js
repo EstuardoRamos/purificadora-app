@@ -8,4 +8,8 @@ router.post("/", productoController.createProducto);
 router.put("/:id", productoController.updateProducto);
 router.delete("/:id", productoController.deleteProducto);
 
+//Listar productos por categoría
+router.get("/categoria/:id_categoria", productoController.getProductosByCategoria);
+
+
 module.exports = router;

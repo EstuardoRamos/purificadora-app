@@ -1,0 +1,89 @@
+<mat-card class="crud-card">
+  <mat-card-title class="card-title">Gestión de Productos</mat-card-title>
+
+  <!-- Tabla de Productos -->
+  <table mat-table [dataSource]="productos" class="mat-elevation-z8 productos-table">
+    <!-- Columna: Nombre -->
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef> Nombre </th>
+      <td mat-cell *matCellDef="let producto"> {{ producto.nombre }} </td>
+    </ng-container>
+
+    <!-- Columna: Precio -->
+    <ng-container matColumnDef="precio">
+      <th mat-header-cell *matHeaderCellDef> Precio </th>
+      <td mat-cell *matCellDef="let producto"> ${{ producto.precio }} </td>
+    </ng-container>
+
+    <!-- Columna: Categoría -->
+    <ng-container matColumnDef="categoria">
+      <th mat-header-cell *matHeaderCellDef> Categoría </th>
+      <td mat-cell *matCellDef="let producto">
+        {{ producto.Categoria.nombre }}
+      </td>
+    </ng-container>
+
+    <!-- Columna: Acciones -->
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef> Acciones </th>
+      <td mat-cell *matCellDef="let producto">
+        <button mat-icon-button color="primary" (click)="editarProducto(producto)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminarProducto(producto)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Cabecera y Filas -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <!-- Botón Nuevo Producto -->
+  <button mat-raised-button color="accent" class="nuevo-producto-btn" (click)="abrirFormulario()">
+    Nuevo Producto
+  </button>
+
+  <!-- Formulario de Crear/Editar Producto -->
+  <mat-card *ngIf="mostrarFormulario" class="form-card">
+    <mat-card-title class="card-title">
+      {{ productoSeleccionado ? 'Editar Producto' : 'Nuevo Producto' }}
+    </mat-card-title>
+    <form>
+      <!-- Nombre -->
+      <mat-form-field appearance="fill">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="productoFormulario.nombre" name="nombre" required />
+      </mat-form-field>
+
+      <!-- Descripción -->
+      <mat-form-field appearance="fill">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput rows="2" [(ngModel)]="productoFormulario.descripcion" name="descripcion"></textarea>
+      </mat-form-field>
+
+      <!-- Precio -->
+      <mat-form-field appearance="fill">
+        <mat-label>Precio</mat-label>
+        <input matInput type="number" [(ngModel)]="productoFormulario.precio" name="precio" required />
+      </mat-form-field>
+
+      <!-- Categoría -->
+      <mat-form-field appearance="fill">
+        <mat-label>Categoría</mat-label>
+        <mat-select [(ngModel)]="productoFormulario.id_categoria" name="categoria" required>
+          <mat-option value=1>Venta</mat-option>
+          <mat-option value=2>Mantenimiento</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Botones -->
+      <div class="form-buttons">
+        <button mat-raised-button color="primary" (click)="guardarProducto()">Guardar</button>
+        <button mat-raised-button color="warn" (click)="cancelarFormulario()">Cancelar</button>
+      </div>
+    </form>
+  </mat-card>
+</mat-card>

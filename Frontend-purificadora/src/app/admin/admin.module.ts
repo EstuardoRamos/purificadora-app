@@ -7,19 +7,27 @@ import { GestionUsuariosComponent } from './pages/gestion-usuarios/gestion-usuar
 import { MaterialModule } from '../material/material.module';
 import { VentasComponent } from './pages/ventas/ventas.component';
 import { FormsModule } from '@angular/forms';
+import { CrudProductosComponent } from './pages/crud-productos/crud-productos.component';
+import { ProductosService } from './services/productos.service';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
   declarations: [
     HomeComponent,
     GestionUsuariosComponent,
-    VentasComponent
+    VentasComponent,
+    CrudProductosComponent
   ],
   imports: [
     CommonModule,
+    HttpClientModule,
     FormsModule,
     AdminRoutingModule,
     MaterialModule
+  ],
+  providers:[
+    ProductosService
   ]
 })
 export class AdminModule { }
