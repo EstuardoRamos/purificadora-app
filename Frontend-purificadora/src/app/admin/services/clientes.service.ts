@@ -25,6 +25,6 @@ export class ClientesService {
   }
 
   updateCliente(cliente: Cliente){
-    return this.http.put(`${this.baseUrl}/clientes/${cliente.id}`, cliente)
+    return this.http.put(`${this.baseUrl}/clientes/${cliente.id_cliente}`, cliente)
   }
 }

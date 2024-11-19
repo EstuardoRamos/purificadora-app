@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ClientesService } from '../../services/clientes.service';
 import { Cliente } from '../../../interfaces/cliente.interface';
+import { AldeasService } from '../../services/aldeas.service';
 
 @Component({
   selector: 'app-crud-clientes',
@@ -10,7 +11,8 @@ import { Cliente } from '../../../interfaces/cliente.interface';
 export class CrudClientesComponent {
 
   constructor(
-    private clientesService: ClientesService
+    private clientesService: ClientesService,
+    private aldeasService: AldeasService,
   ){}
 
   ngOnInit(){
@@ -43,6 +45,7 @@ export class CrudClientesComponent {
   clienteSeleccionado = null; // Cliente en edición
   clienteFormulario: Cliente =
     {
+      id_cliente:0,
       nombre: '',
       ruta: '',
       aldea: {nombre:''},
@@ -60,6 +63,8 @@ export class CrudClientesComponent {
   editarCliente(cliente: any) {
     this.mostrarFormulario = true;
     this.clienteSeleccionado = cliente;
+    console.log(cliente);
+
     this.clienteFormulario = { ...cliente }; // Carga los datos del cliente
   }
 
@@ -72,6 +77,7 @@ export class CrudClientesComponent {
     if (this.clienteSeleccionado) {
       // Actualizar cliente existente
       Object.assign(this.clienteSeleccionado, this.clienteFormulario);
+      this.actualizarCliente();
       alert('Cliente actualizado con éxito.');
     } else {
       // Crear nuevo cliente
@@ -120,6 +126,8 @@ export class CrudClientesComponent {
   }
 
   actualizarCliente(){
+    console.log(this.clienteFormulario);
+
     this.clientesService.updateCliente(this.clienteFormulario).subscribe({
       next: (cliente) => {
     //    this.clientes.push(cliente);
@@ -128,6 +136,17 @@ export class CrudClientesComponent {
       error: (error) => {
         console.error('Error al crear cliente:', error);
         alert('Error al crear cliente:'+ error);
+      }
+    })
+  }
+
+  listarAldes(){
+    this.aldeasService.getAldeas().subscribe({
+      next: (aldeas) => {
+        //this.aldeas = aldeas as Aldea[];
+      },
+      error: (error) => {
+        console.error('Error al obtener aldeas:', error);
       }
     })
   }
