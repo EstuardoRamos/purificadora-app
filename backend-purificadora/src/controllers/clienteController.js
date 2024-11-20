@@ -3,7 +3,7 @@ const Cliente = require("../models/cliente");
 // Obtener todos los clientes
 exports.getAllClientes = async (req, res) => {
     try {
-        const clientes = await Cliente.findAll();
+        const clientes = await Cliente.findAll({ include: "Aldea" });
         res.json(clientes);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -11,13 +11,13 @@ export class AldeasService {
 
   constructor(private http: HttpClient ) { }
   getAldeas(){
-    return this.http.get(`${this.baseUrl}/aldeas`);
+    return this.http.get(`${this.baseUrl}/aldeas/`);
   }
   crearAldea(aldea: Aldea){
-    return this.http.post(`${this.baseUrl}/aldeas`, aldea);
+    return this.http.post(`${this.baseUrl}/aldeas/`, aldea);
   }
   updateAldea(aldea: Aldea){
-    return this.http.put(`${this.baseUrl}/aldeas/`, aldea);
+    return this.http.put(`${this.baseUrl}/aldeas/${aldea.id_aldea}`, aldea);
   }
 
 }

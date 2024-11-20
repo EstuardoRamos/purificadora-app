@@ -8,10 +8,11 @@ export interface Cliente{
   telefono:string;
   coordenadas?:string;
   garrafones_prestados?: number;
-  aldea?:Aldea;
+  id_aldea?:number;
+  Aldea?:Aldea;
 }
 
 export interface Aldea{
-  id?: number;
+  id_aldea?: number;
   nombre?: string;
 }

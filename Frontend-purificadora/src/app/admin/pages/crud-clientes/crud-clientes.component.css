@@ -55,3 +55,52 @@ mat-form-field {
   display: flex;
   justify-content: space-between;
 }
+
+/* Contenedor para habilitar el scroll horizontal en pantallas pequeñas */
+.table-container {
+  overflow-x: auto; /* Habilita scroll horizontal */
+  -webkit-overflow-scrolling: touch; /* Suaviza el desplazamiento en dispositivos táctiles */
+}
+
+/* Tabla */
+.clientes-table {
+  width: 100%;
+  min-width: 800px; /* Evita que las columnas se colapsen en pantallas pequeñas */
+  margin-bottom: 16px;
+}
+
+th, td {
+  white-space: nowrap; /* Evita que el contenido se desborde */
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  font-weight: bold;
+}
+
+td {
+  color: #cfcfcf; /* Texto gris claro */
+}
+
+/* Botones en la tabla */
+mat-icon-button {
+  margin: 0 4px;
+}
+
+@media screen and (max-width: 768px) {
+  /* Títulos de la tabla se reducen */
+  th {
+    font-size: 0.9rem;
+  }
+
+  /* Texto en celdas más pequeño */
+  td {
+    font-size: 0.8rem;
+  }
+
+  /* Iconos más pequeños */
+  mat-icon {
+    font-size: 18px;
+  }
+}

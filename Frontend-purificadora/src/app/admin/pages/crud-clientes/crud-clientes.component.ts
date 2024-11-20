@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ClientesService } from '../../services/clientes.service';
-import { Cliente } from '../../../interfaces/cliente.interface';
+import { Aldea, Cliente } from '../../../interfaces/cliente.interface';
 import { AldeasService } from '../../services/aldeas.service';
 
 @Component({
@@ -17,28 +17,13 @@ export class CrudClientesComponent {
 
   ngOnInit(){
     this.listarClientes();
+    this.listarAldeas();
   }
+
+  aldeaSelectId:number=0;
   diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-  aldeas = ['Aldea 1', 'Aldea 2', 'Aldea 3', 'Aldea 4']; // Lista de aldeas disponibles
+  aldeas:Aldea[]=[]
   clientes: Cliente[]=[];
-  clientes2 = [
-    {
-      nombre: 'Juan Pérez',
-      ruta: 'Lunes',
-      aldea: 'Aldea 1',
-      direccion: 'Calle 123',
-      coordenadas: '(19.432608, -99.133209)',
-      telefono: '555-1234',
-    },
-    {
-      nombre: 'Ana García',
-      ruta: 'Martes',
-      aldea: 'Aldea 2',
-      direccion: 'Av. Siempre Viva 456',
-      coordenadas: '(19.422608, -99.143209)',
-      telefono: '555-5678',
-    },
-  ];
 
   displayedColumns = ['nombre', 'ruta', 'aldea', 'direccion', 'coordenadas', 'telefono', 'acciones'];
 
@@ -48,16 +33,16 @@ export class CrudClientesComponent {
       id_cliente:0,
       nombre: '',
       ruta: '',
-      aldea: {nombre:''},
+      Aldea: {nombre:''},
       direccion: '',
       coordenadas: '',
       telefono: '' }; // Formulario vacío
-  mostrarFormulario = false; // Controla si se muestra el formulario
+      mostrarFormulario = false; // Controla si se muestra el formulario
 
   abrirFormulario() {
     this.mostrarFormulario = true;
     this.clienteSeleccionado = null;
-    this.clienteFormulario = { nombre: '', ruta: '', aldea: {nombre:''}, direccion: '', coordenadas: '', telefono: '' };
+    this.clienteFormulario = { nombre: '', ruta: '', Aldea: {nombre:''}, direccion: '', coordenadas: '', telefono: '' };
   }
 
   editarCliente(cliente: any) {
@@ -69,17 +54,20 @@ export class CrudClientesComponent {
   }
 
   guardarCliente() {
-    if (!this.clienteFormulario.nombre || !this.clienteFormulario.ruta || !this.clienteFormulario.aldea) {
+    if (!this.clienteFormulario.nombre || !this.clienteFormulario.ruta || !this.clienteFormulario.id_aldea) {
       alert('Por favor completa todos los campos obligatorios.');
       return;
     }
 
     if (this.clienteSeleccionado) {
+      //this.clienteFormulario.id_aldea=this.aldeaSelectId;
       // Actualizar cliente existente
       Object.assign(this.clienteSeleccionado, this.clienteFormulario);
+
       this.actualizarCliente();
       alert('Cliente actualizado con éxito.');
     } else {
+      //this.clienteFormulario.id_aldea=this.aldeaSelectId;
       // Crear nuevo cliente
       this.clientes.push({ ...this.clienteFormulario });
       this.crearCliente();
@@ -98,13 +86,14 @@ export class CrudClientesComponent {
 
   cancelarFormulario() {
     this.mostrarFormulario = false;
-    this.clienteFormulario = { nombre: '', ruta: '', aldea: {nombre:''}, direccion: '', coordenadas: '', telefono: '' };
+    this.clienteFormulario = { nombre: '', ruta: '', Aldea: {nombre:''}, direccion: '', coordenadas: '', telefono: '' };
   }
 
   listarClientes(){
     this.clientesService.getClientes().subscribe({
       next: (clientes) => {
         this.clientes = clientes as Cliente[];
+        console.log(clientes);
       },
       error: (error) => {
         console.error('Error al obtener clientes:', error);
@@ -127,7 +116,7 @@ export class CrudClientesComponent {
 
   actualizarCliente(){
     console.log(this.clienteFormulario);
-
+    this.clienteFormulario.id_aldea
     this.clientesService.updateCliente(this.clienteFormulario).subscribe({
       next: (cliente) => {
     //    this.clientes.push(cliente);
@@ -140,10 +129,10 @@ export class CrudClientesComponent {
     })
   }
 
-  listarAldes(){
+  listarAldeas(){
     this.aldeasService.getAldeas().subscribe({
       next: (aldeas) => {
-        //this.aldeas = aldeas as Aldea[];
+        this.aldeas = aldeas as Aldea[];
       },
       error: (error) => {
         console.error('Error al obtener aldeas:', error);

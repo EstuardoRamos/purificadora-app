@@ -4,6 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { VentasComponent } from './pages/ventas/ventas.component';
 import { CrudProductosComponent } from './pages/crud-productos/crud-productos.component';
 import { CrudClientesComponent } from './pages/crud-clientes/crud-clientes.component';
+import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
 
 const routes: Routes = [
   {
@@ -25,6 +26,10 @@ const routes: Routes = [
       {
         path: 'clientes',
         component: CrudClientesComponent
+      },
+      {
+        path: 'aldeas',
+        component: CrudAldeasComponent
       },
 
     ]

@@ -13,6 +13,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterOutlet } from '@angular/router';
 import { CrudClientesComponent } from './pages/crud-clientes/crud-clientes.component';
 import { ClientesService } from './services/clientes.service';
+import { AldeasService } from './services/aldeas.service';
+import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
 
 
 @NgModule({
@@ -21,7 +23,8 @@ import { ClientesService } from './services/clientes.service';
     GestionUsuariosComponent,
     VentasComponent,
     CrudProductosComponent,
-    CrudClientesComponent
+    CrudClientesComponent,
+    CrudAldeasComponent
   ],
   imports: [
     CommonModule,
@@ -33,7 +36,8 @@ import { ClientesService } from './services/clientes.service';
   ],
   providers:[
     ProductosService,
-    ClientesService
+    ClientesService,
+    AldeasService
   ]
 })
 export class AdminModule { }
