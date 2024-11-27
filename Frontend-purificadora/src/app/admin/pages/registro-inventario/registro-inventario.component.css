@@ -1,0 +1,96 @@
+/* Contenedor Principal */
+.crud-card {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #1976d2;
+}
+
+/* Tabla */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.inventario-table {
+  width: 100%;
+  min-width: 500px;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  font-weight: bold;
+  background-color: #2e2e2e;
+  color: #ffffff;
+}
+
+td {
+  background-color: #212121;
+  color: #cfcfcf;
+  border-bottom: 1px solid #333333;
+}
+
+.stock-alto {
+  color: #4caf50; /* Verde */
+}
+
+.stock-bajo {
+  color: #f44336; /* Rojo */
+}
+
+mat-icon {
+  font-size: 20px;
+}
+
+/* Formulario */
+.form-card {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #161616;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  color: #2196f3;
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  min-width: 120px;
+}

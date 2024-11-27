@@ -1,0 +1,67 @@
+/* Contenedor Principal */
+.crud-card {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #1976d2;
+}
+
+/* Filtros */
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+mat-form-field {
+  flex: 1 1 calc(50% - 16px);
+  min-width: 200px;
+}
+
+/* Tabla */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.historial-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  font-weight: bold;
+  background-color: #2e2e2e;
+  color: #ffffff;
+}
+
+td {
+  background-color: #212121;
+  color: #cfcfcf;
+  border-bottom: 1px solid #333333;
+}
+
+.accion-aumentar {
+  color: #4caf50; /* Verde */
+}
+
+.accion-disminuir {
+  color: #f44336; /* Rojo */
+}

@@ -15,6 +15,10 @@ import { CrudClientesComponent } from './pages/crud-clientes/crud-clientes.compo
 import { ClientesService } from './services/clientes.service';
 import { AldeasService } from './services/aldeas.service';
 import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { InventarioService } from './services/inventario.service';
+import { RegistroInventarioComponent } from './pages/registro-inventario/registro-inventario.component';
+import { HistorialInventarioComponent } from './pages/historial-inventario/historial-inventario.component';
 
 
 @NgModule({
@@ -24,7 +28,10 @@ import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
     VentasComponent,
     CrudProductosComponent,
     CrudClientesComponent,
-    CrudAldeasComponent
+    CrudAldeasComponent,
+    InventarioComponent,
+    RegistroInventarioComponent,
+    HistorialInventarioComponent
   ],
   imports: [
     CommonModule,
@@ -37,7 +44,8 @@ import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
   providers:[
     ProductosService,
     ClientesService,
-    AldeasService
+    AldeasService,
+    InventarioService
   ]
 })
 export class AdminModule { }

@@ -1,0 +1,48 @@
+/* Contenedor Principal */
+.crud-card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #1976d2;
+}
+
+/* Tabla */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.inventario-table {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+.cantidad-input {
+  width: 80px;
+}
+
+.estado-select {
+  width: 150px;
+}
+
+/* Botones */
+button {
+  min-width: 100px;
+  margin: 0 4px;
+}

@@ -8,6 +8,8 @@ const clienteRoutes = require("./routes/clienteRoutes");
 const productoRoutes = require("./routes/productoRoutes")
 const categoriaRoutes = require("./routes/categoriaRoutes")
 const aldeaRoutes = require("./routes/aldeaRoutes")
+const inventarioRoutes = require("./routes/inventarioRoutes")
+const registroInventarioRoutes = require("./routes/registroInventarioRoutes")
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use("/api/clientes", clienteRoutes);
 app.use("/api/categorias", categoriaRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/aldeas", aldeaRoutes);
+app.use("/api/inventarios", inventarioRoutes);
+app.use("/api/registroInventarios", registroInventarioRoutes);
 
 // Sincronización de Sequelize con la base de datos
 sequelize.sync()

@@ -5,6 +5,9 @@ import { VentasComponent } from './pages/ventas/ventas.component';
 import { CrudProductosComponent } from './pages/crud-productos/crud-productos.component';
 import { CrudClientesComponent } from './pages/crud-clientes/crud-clientes.component';
 import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { RegistroInventarioComponent } from './pages/registro-inventario/registro-inventario.component';
+import { HistorialInventarioComponent } from './pages/historial-inventario/historial-inventario.component';
 
 const routes: Routes = [
   {
@@ -30,6 +33,18 @@ const routes: Routes = [
       {
         path: 'aldeas',
         component: CrudAldeasComponent
+      },
+      {
+        path: 'inventario',
+        component: InventarioComponent
+      },
+      {
+        path: 'registro-inventario',
+        component: RegistroInventarioComponent
+      },
+      {
+        path: 'historial-inventario',
+        component: HistorialInventarioComponent
       },
 
     ]
