@@ -55,8 +55,11 @@ export class RegistroInventarioComponent {
       this.productoSeleccionado!.cantidad! += this.cantidadCambio;
       this.cantidadCambio=+this.cantidadCambio
     } else if (this.accion === 'disminuir') {
+      this.cantidadCambio=(-this.cantidadCambio);
       if (this.productoSeleccionado!.cantidad! - this.cantidadCambio < 0) {
-        this.cantidadCambio=-this.cantidadCambio
+        console.log('hola');
+
+        this.cantidadCambio=-Number(this.cantidadCambio);
         alert('No puedes reducir más allá de 0.');
         return;
       }

@@ -8,6 +8,7 @@ import { CrudAldeasComponent } from './pages/crud-aldeas/crud-aldeas.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { RegistroInventarioComponent } from './pages/registro-inventario/registro-inventario.component';
 import { HistorialInventarioComponent } from './pages/historial-inventario/historial-inventario.component';
+import { ListarVentasComponent } from './pages/listar-ventas/listar-ventas.component';
 
 const routes: Routes = [
   {
@@ -45,6 +46,10 @@ const routes: Routes = [
       {
         path: 'historial-inventario',
         component: HistorialInventarioComponent
+      },
+      {
+        path: 'listar-ventas',
+        component: ListarVentasComponent
       },
 
     ]

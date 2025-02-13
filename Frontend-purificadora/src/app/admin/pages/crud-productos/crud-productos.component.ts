@@ -32,7 +32,8 @@ export class CrudProductosComponent {
     nombre: '',
     descripcion: '',
     precio: 0,
-    id_categoria:0
+    id_categoria:0,
+    cantidad: 0
   };
 
   //productoFormulario = { nombre: '', descripcion: '', precio: null, categoria: '' }; // Formulario vacío
@@ -41,7 +42,7 @@ export class CrudProductosComponent {
   abrirFormulario() {
     this.mostrarFormulario = true;
     this.productoSeleccionado = null;
-    this.productoFormulario = { nombre: '', descripcion: '', precio: 0 , id_categoria:0  };
+    this.productoFormulario = { nombre: '', descripcion: '', precio: 0 , id_categoria:0, cantidad:0  };
   }
 
   editarProducto(producto: any) {
@@ -88,7 +89,7 @@ export class CrudProductosComponent {
 
   cancelarFormulario() {
     this.mostrarFormulario = false;
-    this.productoFormulario = { nombre: '', descripcion: '', precio: 0, id_categoria:0 };
+    this.productoFormulario = { nombre: '', descripcion: '', precio: 0, id_categoria:0, cantidad:0 };
   }
 
 

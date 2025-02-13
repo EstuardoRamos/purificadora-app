@@ -12,6 +12,10 @@
       <th mat-header-cell *matHeaderCellDef> Ruta </th>
       <td mat-cell *matCellDef="let cliente"> {{ cliente.ruta }} </td>
     </ng-container>
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef> Telefono </th>
+      <td mat-cell *matCellDef="let cliente"> {{ cliente.telefono }} </td>
+    </ng-container>
 
     <ng-container matColumnDef="coordenadas">
       <th mat-header-cell *matHeaderCellDef> Ubicación </th>
@@ -94,7 +98,7 @@
 
         <mat-form-field appearance="fill" class="metodo-field">
           <mat-label>Método de Pago</mat-label>
-          <mat-select [(ngModel)]="venta.metodoPago">
+          <mat-select [(ngModel)]="venta.id_fomrma_pago">
             <mat-option value="pago">Pago</mat-option>
             <mat-option value="credito">Crédito</mat-option>
           </mat-select>

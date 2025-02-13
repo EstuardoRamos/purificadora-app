@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
-const { sequelize } = require("../config/database");
-const Producto = require("./producto");
+const { sequelize } = require("../config/database"); // Verifica que la ruta de `database` sea correcta
+const Producto = require("./producto"); // Importar el modelo Producto
 
 const Inventario = sequelize.define("Inventario", {
     id: {
@@ -12,7 +12,7 @@ const Inventario = sequelize.define("Inventario", {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Producto,
+            model: "producto", // Aquí usamos el nombre de la tabla en lugar del modelo para evitar dependencias circulares
             key: "id_producto",
         },
     },
@@ -27,6 +27,6 @@ const Inventario = sequelize.define("Inventario", {
 });
 
 // Relación con Producto
-Inventario.belongsTo(Producto, { foreignKey: "id_producto" });
+Inventario.belongsTo(Producto, { foreignKey: "id_producto", as: "Producto" });
 
 module.exports = Inventario;

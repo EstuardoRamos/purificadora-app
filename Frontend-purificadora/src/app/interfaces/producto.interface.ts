@@ -6,6 +6,7 @@ export interface Producto{
   estado?: string,
   id_categoria?:number
   Categoria?: Categoria;
+  cantidad?: number;
 }
 
 export interface Categoria{
