@@ -1,114 +1,186 @@
 <mat-card>
   <mat-card-title class="card-title">Ventas del Día</mat-card-title>
 
+  <!-- Filtro por Día de la Semana -->
+  <div class="filtro-container">
+    <mat-form-field appearance="outline" class="filtro-dia">
+      <mat-label>Filtrar por Día de Ruta</mat-label>
+      <mat-select 
+        name="dia_filtro"
+        [(ngModel)]="diaSeleccionado"
+        (selectionChange)="filtrarClientesPorDia()"
+        [ngModelOptions]="{standalone: true}"
+      >
+        <mat-option value="todos"> Todos los días</mat-option>
+        <mat-option value="lunes">Lunes</mat-option>
+        <mat-option value="martes">Martes</mat-option>
+        <mat-option value="miércoles">Miércoles</mat-option>
+        <mat-option value="jueves">Jueves</mat-option>
+        <mat-option value="viernes">Viernes</mat-option>
+        <mat-option value="sábado">Sábado</mat-option>
+        <mat-option value="domingo">Domingo</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="filtro-info">
+      <span class="info-label">Día actual:</span>
+      <span class="info-valor">{{ diaActualNombre }}</span>
+      <span class="info-separator">|</span>
+      <span class="info-label">Clientes mostrados:</span>
+      <span class="info-valor">{{ clientesFiltrados.length }}</span>
+    </div>
+  </div>
+
   <!-- Tabla de Clientes -->
-  <table mat-table [dataSource]="clientes" class="mat-elevation-z8 clientes-table">
-    <ng-container matColumnDef="nombre">
-      <th mat-header-cell *matHeaderCellDef> Cliente </th>
-      <td mat-cell *matCellDef="let cliente"> {{ cliente.nombre }} </td>
-    </ng-container>
+  <div class="table-container">
+    <table mat-table [dataSource]="clientesFiltrados" class="mat-elevation-z8 clientes-table">
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef> Cliente </th>
+        <td mat-cell *matCellDef="let cliente"> {{ cliente.nombre }} </td>
+      </ng-container>
 
-    <ng-container matColumnDef="ruta">
-      <th mat-header-cell *matHeaderCellDef> Ruta </th>
-      <td mat-cell *matCellDef="let cliente"> {{ cliente.ruta }} </td>
-    </ng-container>
-    <ng-container matColumnDef="telefono">
-      <th mat-header-cell *matHeaderCellDef> Telefono </th>
-      <td mat-cell *matCellDef="let cliente"> {{ cliente.telefono }} </td>
-    </ng-container>
+      <ng-container matColumnDef="telefono">
+        <th mat-header-cell *matHeaderCellDef> Teléfono </th>
+        <td mat-cell *matCellDef="let cliente"> {{ cliente.telefono }} </td>
+      </ng-container>
 
-    <ng-container matColumnDef="coordenadas">
-      <th mat-header-cell *matHeaderCellDef> Ubicación </th>
-      <td mat-cell *matCellDef="let cliente">
-        <a
-          class="link-mapa"
-          [href]="'https://www.google.com/maps?q=' + cliente.coordenadas"
-          target="_blank"
-        >
-          Ver en mapa
-        </a>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="coordenadas">
+        <th mat-header-cell *matHeaderCellDef> Ubicación </th>
+        <td mat-cell *matCellDef="let cliente">
+          <a
+            class="link-mapa"
+            [href]="'https://www.google.com/maps?q=' + cliente.coordenadas"
+            target="_blank"
+          >
+            Ver en mapa
+          </a>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="estado">
-      <th mat-header-cell *matHeaderCellDef> Estado </th>
-      <td mat-cell *matCellDef="let cliente">
-        <span
-          [ngClass]="{
-            'abastecido': cliente.estado === 'abastecido',
-            'desabastecido': cliente.estado === 'desabastecido'
-          }"
-        >
-          {{ cliente.estado }}
-        </span>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let cliente">
+          <span
+            [ngClass]="{
+              'abastecido': cliente.estado === 'abastecido',
+              'desabastecido': cliente.estado === 'desabastecido'
+            }"
+          >
+            {{ cliente.estado }}
+          </span>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef> Acciones </th>
-      <td mat-cell *matCellDef="let cliente">
-        <button mat-raised-button color="accent" (click)="registrarVenta(cliente)">
-          Registrar Venta
-        </button>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let cliente">
+          <button 
+            mat-raised-button 
+            color="accent" 
+            (click)="registrarVenta(cliente)"
+            
+          >
+            Registrar Venta
+          </button>
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
 
   <!-- Formulario de Venta -->
   <mat-card *ngIf="mostrarFormularioVenta" class="venta-form-card">
-    <mat-card-title class="card-title">Registrar Venta</mat-card-title>
-    <form>
+    <mat-card-title class="card-title">
+      <span class="title-icon">📋</span>
+      Registrar Venta
+    </mat-card-title>
+    
+    <form #ventaForm="ngForm">
       <!-- Cliente Seleccionado -->
-      <mat-form-field appearance="fill" class="form-field">
+      <mat-form-field appearance="outline" class="form-field cliente-field">
         <mat-label>Cliente</mat-label>
-        <input matInput placeholder="Selecciona un cliente" [value]="clienteSeleccionado?.nombre" disabled />
+        <input 
+          matInput 
+          [value]="clienteSeleccionado?.nombre" 
+          disabled 
+        />
       </mat-form-field>
 
-      <!-- Productos -->
-      <div *ngFor="let producto of productos; let i = index" class="producto-item">
-        <!-- Nombre y precio del producto -->
-        <span class="producto-detalle">
-          {{ producto.nombre }} - <strong>${{ producto.precio }}</strong>
-        </span>
+      <!-- Sección de Productos -->
+      <div class="productos-section">
+        <h3 class="section-title">Productos</h3>
+        <div class="productos-grid">
+          <div *ngFor="let producto of productos; let i = index" class="producto-card">
+            <div class="producto-info">
+              <span class="producto-nombre">{{ producto.nombre }}</span>
+              <span class="producto-precio">Q{{ producto.precio | number:'1.2-2' }}</span>
+            </div>
 
-        <!-- Input de cantidad -->
-        <mat-form-field appearance="fill" class="cantidad-field">
-          <mat-label>Cantidad</mat-label>
-          <input
-            matInput
-            type="number"
-            min="0"
-            name="producto_{{ i }}"
-            [(ngModel)]="producto.cantidad"
-            (ngModelChange)="calcularTotal()"
-          />
-        </mat-form-field>
+            <!-- Input de cantidad -->
+            <mat-form-field appearance="outline" class="cantidad-field">
+              <mat-label>Cantidad</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0"
+                name="producto_{{ i }}"
+                [(ngModel)]="producto.cantidad"
+                (ngModelChange)="calcularTotal()"
+                placeholder="0"
+              />
+            </mat-form-field>
+            
+            <!-- Subtotal por producto -->
+            <div class="producto-subtotal" *ngIf="producto.cantidad && producto.cantidad > 0">
+              Subtotal: Q{{ (producto.precio * producto.cantidad) | number:'1.2-2' }}
+            </div>
+          </div>
+        </div>
       </div>
 
-
       <!-- Total y Método de Pago -->
-      <div class="totales">
-        <mat-form-field appearance="fill" class="total-field">
-          <mat-label>Total</mat-label>
-          <input matInput type="number" [value]="totalVenta" disabled />
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="metodo-field">
+      <div class="totales-section">
+        <mat-form-field appearance="outline" class="metodo-field">
           <mat-label>Método de Pago</mat-label>
-          <mat-select [(ngModel)]="venta.id_fomrma_pago">
-            <mat-option value="pago">Pago</mat-option>
-            <mat-option value="credito">Crédito</mat-option>
+          <mat-select 
+            name="metodo_pago"
+            [(ngModel)]="venta.id_fomrma_pago"
+            required
+          >
+            <mat-option [value]="1">Pago</mat-option>
+            <mat-option [value]="2">Crédito</mat-option>
           </mat-select>
         </mat-form-field>
+
+        <div class="total-display">
+          <span class="total-label">Total a pagar:</span>
+          <span class="total-amount">Q{{ totalVenta | number:'1.2-2' }}</span>
+        </div>
       </div>
 
       <!-- Botones -->
       <div class="form-buttons">
-        <button mat-raised-button color="primary" (click)="guardarVenta()">Guardar</button>
-        <button mat-raised-button color="warn" (click)="cancelarVenta()">Cancelar</button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="button"
+          (click)="guardarVenta()"
+          [disabled]="totalVenta === 0"
+        >
+          <mat-icon>save</mat-icon>
+          Guardar
+        </button>
+        <button 
+          mat-raised-button 
+          color="warn" 
+          type="button"
+          (click)="cancelarVenta()"
+        >
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
       </div>
     </form>
   </mat-card>

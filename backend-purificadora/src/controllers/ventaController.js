@@ -173,5 +173,42 @@ exports.getVentasByFecha = async (req, res) => {
     }
 };
 
+exports.actualizarEstadoPago = async (req, res) => {
+  const { id } = req.params;
+  const { estado_pago } = req.body;
+
+  try {
+    const venta = await Venta.findByPk(id);
+    if (!venta) {
+      return res.status(404).json({ error: "Venta no encontrada" });
+    }
+
+    venta.estado_pago = estado_pago;
+    await venta.save();
+
+    res.json({ message: "Estado de pago actualizado", venta });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getVentasPendientes = async (req, res) => {
+  try {
+    const ventasPendientes = await Venta.findAll({
+      where: {
+        estado_pago: 'pendiente'
+      }
+    });
+
+    if (ventasPendientes.length === 0) {
+      return res.status(404).json({ error: "No hay ventas pendientes" });
+    }
+
+    res.json(ventasPendientes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 

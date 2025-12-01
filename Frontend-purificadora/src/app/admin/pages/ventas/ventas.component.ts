@@ -13,12 +13,18 @@ import { Venta, DetalleVenta } from '../../../interfaces/venta.interface';
 })
 export class VentasComponent implements OnInit {
   clientes: Cliente[] = [];
+  clientesFiltrados: Cliente[] = [];
   productos: Producto[] = [];
   productosVenta: Producto[] = [];
   displayedColumns: string[] = ['nombre', 'telefono', 'coordenadas', 'estado', 'acciones'];
   clienteSeleccionado: Cliente | null = null;
   totalVenta: number = 0;
   mostrarFormularioVenta: boolean = false;
+
+  // Variables para el filtro
+  diaSeleccionado: string = '';
+  diaActualNombre: string = '';
+  diasSemana: string[] = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
   // Detalles de la venta
   venta: Venta = {
@@ -36,29 +42,45 @@ export class VentasComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cargarClientesDelDia();
+    this.inicializarDiaActual();
+    this.cargarTodosLosClientes();
     this.cargarProductos();
   }
 
-  // Cargar clientes según el día actual
-  cargarClientesDelDia(): void {
-    const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-    const diaActual = diasSemana[new Date().getDay()];
+  // Inicializar el día actual
+  inicializarDiaActual(): void {
+    const diaActual = this.diasSemana[new Date().getDay()];
+    this.diaActualNombre = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
+    this.diaSeleccionado = diaActual; // Por defecto muestra el día actual
+  }
 
+  // Cargar todos los clientes
+  cargarTodosLosClientes(): void {
     this.clientesService.getClientes().subscribe({
       next: (data) => {
-        this.clientes = (data as Cliente[]).filter((cliente) => cliente.ruta.toLowerCase() === diaActual);
+        this.clientes = data as Cliente[];
+        this.filtrarClientesPorDia();
       },
       error: (err) => console.error('Error al cargar los clientes', err),
     });
+  }
+
+  // Filtrar clientes por día de la semana
+  filtrarClientesPorDia(): void {
+    if (this.diaSeleccionado === 'todos') {
+      this.clientesFiltrados = [...this.clientes];
+    } else {
+      this.clientesFiltrados = this.clientes.filter(
+        (cliente) => cliente.ruta.toLowerCase() === this.diaSeleccionado.toLowerCase()
+      );
+    }
   }
 
   // Cargar productos disponibles
   cargarProductos(): void {
     this.productosService.getProductos().subscribe({
       next: (data) => {
-        this.productos=data as Producto[]
-
+        this.productos = data as Producto[];
       },
       error: (err) => console.error('Error al cargar los productos', err),
     });
@@ -88,34 +110,45 @@ export class VentasComponent implements OnInit {
   }
 
   // Construir los detalles de la venta
-  construirDetalleVenta(){
-    return this.productos
-      .filter((producto) => producto.cantidad && producto.cantidad > 0);
+  construirDetalleVenta() {
+    return this.productos.filter(
+      (producto) => producto.cantidad && producto.cantidad > 0
+    );
   }
 
   // Guardar la venta
   guardarVenta(): void {
     if (this.totalVenta > 0 && this.clienteSeleccionado) {
-      //const detallesVenta = this.construirDetalleVenta();
       this.productosVenta = this.construirDetalleVenta();
       const ventaCompleta = {
-        id_usuario:2,
-        id_metodo_pago: 1,
-        id_cliente:this.venta.id_cliente,
-        productos: this.productosVenta
+        id_usuario: 1,
+        id_metodo_pago: this.venta.id_fomrma_pago,
+        id_cliente: this.venta.id_cliente,
+        productos: this.productosVenta,
       };
 
       this.ventasService.registrarVenta(ventaCompleta).subscribe({
         next: () => {
-          alert(`Venta registrada exitosamente para ${this.clienteSeleccionado!.nombre}`);
+          alert(
+            `Venta registrada exitosamente para ${this.clienteSeleccionado!.nombre}`
+          );
           this.clienteSeleccionado!.estado = 'abastecido'; // Actualizar estado local
+          
+          // Actualizar la lista filtrada
+          const index = this.clientesFiltrados.findIndex(
+            (c) => c.id_cliente === this.clienteSeleccionado!.id_cliente
+          );
+          if (index !== -1) {
+            this.clientesFiltrados[index].estado = 'abastecido';
+          }
+          
           this.mostrarFormularioVenta = false;
           this.resetVenta();
         },
         error: (err) => {
-          console.error('Error al registrar la venta', err.error)
-          alert('Error al registrar la venta: '+ err.error.error)
-        }
+          console.error('Error al registrar la venta', err.error);
+          alert('Error al registrar la venta: ' + err.error.error);
+        },
       });
     } else {
       alert('Agrega productos y selecciona un cliente antes de guardar la venta.');

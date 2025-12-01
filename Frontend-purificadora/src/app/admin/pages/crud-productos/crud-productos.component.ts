@@ -54,7 +54,8 @@ export class CrudProductosComponent {
   }
 
   guardarProducto() {
-    if (!this.productoFormulario.nombre || !this.productoFormulario.precio || !this.productoFormulario.id_categoria) {
+    if (!this.productoFormulario.nombre || this.productoFormulario.precio < 0
+ || !this.productoFormulario.id_categoria) {
       alert('Por favor completa todos los campos obligatorios.');
       return;
     }

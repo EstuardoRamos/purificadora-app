@@ -1,4 +1,5 @@
 const Cliente = require("../models/cliente");
+const { Op } = require("sequelize");
 
 // Obtener todos los clientes
 exports.getAllClientes = async (req, res) => {
@@ -16,7 +17,7 @@ exports.getClienteById = async (req, res) => {
     try {
         const cliente = await Cliente.findByPk(id);
         if (!cliente) {
-            return res.status(404).json({ error: "Cliente no encontrado" });
+            return res.status(404).json({ error: "Cliente no encontrado id" });
         }
         res.json(cliente);
     } catch (error) {
@@ -52,7 +53,7 @@ exports.updateCliente = async (req, res) => {
     try {
         const cliente = await Cliente.findByPk(id);
         if (!cliente) {
-            return res.status(404).json({ error: "Cliente no encontrado" });
+            return res.status(404).json({ error: "Cliente no encontrado update" });
         }
         await cliente.update({
             nombre,
@@ -77,7 +78,7 @@ exports.deleteCliente = async (req, res) => {
     try {
         const cliente = await Cliente.findByPk(id);
         if (!cliente) {
-            return res.status(404).json({ error: "Cliente no encontrado" });
+            return res.status(404).json({ error: "Cliente no encontrado del" });
         }
         await cliente.destroy();
         res.json({ message: "Cliente eliminado correctamente" });
@@ -107,6 +108,28 @@ exports.getClientesByRuta = async (req, res) => {
         if (clientes.length === 0) {
             return res.status(404).json({ error: "No se encontraron clientes para esta ruta" });
         }
+        res.json(clientes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+exports.getClientesConCredito = async (req, res) => {
+    try {
+        const clientes = await Cliente.findAll({
+            where: {
+                credito: {
+                    [Op.gt]: 0
+                }
+            },
+            include: ["Aldea"]
+        });
+
+        if (clientes.length === 0) {
+            return res.status(404).json({ error: "No hay clientes con crédito pendiente." });
+        }
+
         res.json(clientes);
     } catch (error) {
         res.status(500).json({ error: error.message });

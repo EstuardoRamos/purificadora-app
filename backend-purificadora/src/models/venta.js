@@ -41,6 +41,11 @@ const Venta = sequelize.define("Venta", {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
+    estado_pago: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "pendiente", 
+    }
 }, {
     tableName: "ventas",
     timestamps: false,

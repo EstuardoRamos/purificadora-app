@@ -17,4 +17,7 @@ router.get("/cliente/:id_cliente", ventaController.getVentasByCliente);
 // Listar ventas por fecha o rango de fechas
 router.get("/fecha", ventaController.getVentasByFecha);
 
+router.get('/pendientes', ventaController.getVentasPendientes);
+router.put('/:id/estado', ventaController.actualizarEstadoPago);
+
 module.exports = router;

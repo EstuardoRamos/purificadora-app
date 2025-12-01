@@ -30,12 +30,12 @@ app.use("/api/registroInventarios", registroInventarioRoutes);
 app.use("/api/ventas", ventasRoutes);
 
 // Sincronización de Sequelize con la base de datos
-sequelize.sync()
-    .then(() => console.log("Sincronización de modelos exitosa"))
-    .catch(err => console.error("Error al sincronizar los modelos:", err));
+sequelize.sync()  
+  .then(() => console.log("Sincronización de modelos exitosa"))
+  .catch(err => console.error("Error al sincronizar los modelos:", err));
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
