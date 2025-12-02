@@ -20,4 +20,10 @@ router.get("/fecha", ventaController.getVentasByFecha);
 router.get('/pendientes', ventaController.getVentasPendientes);
 router.put('/:id/estado', ventaController.actualizarEstadoPago);
 
+//router.get('/reporte-semanal', ventaController.getReporteSemanal);
+router.get("/reporte", ventaController.getReportePorFechas);
+
+router.get('/reporte-semanal', ventaController.getReporteSemanalPorFechas);
+router.get('/reporte-ingresos', ventaController.getReporteIngresosPorFechas);
+
 module.exports = router;

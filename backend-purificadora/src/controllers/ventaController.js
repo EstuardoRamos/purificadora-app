@@ -4,6 +4,8 @@ const Inventario = require("../models/inventario");
 const Cliente = require("../models/cliente");
 const Usuario = require("../models/usuario");
 const MetodoPago = require("../models/metodoPago");
+const { parseISO, format } = require('date-fns');
+const { es } = require('date-fns/locale');
 
 exports.createVenta = async (req, res) => {
     const { id_cliente, id_usuario, id_metodo_pago, productos } = req.body;
@@ -134,7 +136,7 @@ exports.getVentasByCliente = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-const { Op } = require("sequelize");
+const { Op, fn, col, literal } = require("sequelize");
 
 
 exports.getVentasByFecha = async (req, res) => {
@@ -211,4 +213,178 @@ exports.getVentasPendientes = async (req, res) => {
 };
 
 
+exports.getReportePorFechas = async (req, res) => {
+    const { desde, hasta } = req.query;
 
+    if (!desde || !hasta) {
+        return res.status(400).json({ error: "Debe proporcionar las fechas 'desde' y 'hasta'" });
+    }
+
+    try {
+        const ventas = await Venta.findAll({
+            where: {
+                fecha: {
+                    [Op.between]: [new Date(desde), new Date(hasta)]
+                }
+            },
+            include: [
+                { model: Cliente, attributes: ["nombre", "direccion", "telefono"] },
+                { model: Usuario, attributes: ["nombre"] },
+                { model: MetodoPago, attributes: ["metodo"] }
+            ],
+            order: [['fecha', 'ASC']]
+        });
+
+        res.json(ventas);
+    } catch (error) {
+        console.error("Error al obtener reporte por fechas:", error);
+        res.status(500).json({ error: "Error interno al generar el reporte" });
+    }
+};
+
+exports.getReporteSemanalPorFechas = async (req, res) => {
+    try {
+        const { desde, hasta } = req.query;
+
+        if (!desde || !hasta) {
+            return res.status(400).json({ error: 'Debe proporcionar las fechas "desde" y "hasta".' });
+        }
+
+        const fechaDesde = new Date(desde);
+        const fechaHasta = new Date(hasta);
+        fechaHasta.setHours(23, 59, 59, 999); // <- ¡Esto es clave!
+
+        const ventas = await Venta.findAll({
+            where: {
+                fecha: {
+                    [Op.between]: [fechaDesde, fechaHasta]
+                }
+            },
+            order: [['fecha', 'ASC']]
+        });
+
+        const resumen = {};
+        let totalVentas = 0;
+        let totalCredito = 0;
+        let totalEntregas = 0;
+
+        for (const venta of ventas) {
+            const fechaVenta = new Date(venta.fecha);
+            const fechaStr = format(fechaVenta, 'yyyy-MM-dd');
+            const diaNombre = format(fechaVenta, 'EEEE', { locale: es });
+
+            if (!resumen[fechaStr]) {
+                resumen[fechaStr] = {
+                    dia: diaNombre,
+                    fecha: fechaStr,
+                    ventas: 0,
+                    credito: 0,
+                    entrega_total: 0,
+                    garrafones_en_planta: 110
+                };
+            }
+
+            resumen[fechaStr].ventas += 1;
+            resumen[fechaStr].entrega_total += 1;
+            totalVentas += 1;
+            totalEntregas += 1;
+
+            if (venta.estado_pago === 'pendiente') {
+                resumen[fechaStr].credito += 1;
+                totalCredito += 1;
+            }
+        }
+
+        return res.json({
+            resumen,
+            total: {
+                ventas: totalVentas,
+                credito: totalCredito,
+                entrega_total: totalEntregas
+            }
+        });
+
+    } catch (error) {
+        console.error("Error generando reporte semanal:", error);
+        return res.status(500).json({ error: "Error generando reporte semanal" });
+    }
+};
+
+exports.getReporteIngresosPorFechas = async (req, res) => {
+    try {
+        const { desde, hasta } = req.query;
+
+        if (!desde || !hasta) {
+            return res.status(400).json({ error: 'Debe proporcionar las fechas "desde" y "hasta".' });
+        }
+
+        const fechaDesde = new Date(desde);
+        const fechaHasta = new Date(hasta);
+        fechaHasta.setHours(23, 59, 59, 999); // incluir todo el día final
+
+        const ventas = await Venta.findAll({
+            where: {
+                fecha: {
+                    [Op.between]: [fechaDesde, fechaHasta]
+                }
+            },
+            order: [['fecha', 'ASC']]
+        });
+
+        const resumen = {};
+        let totalVentas = 0;
+        let totalCredito = 0;
+        let ingresoTotal = 0;
+
+        for (const venta of ventas) {
+    const fechaVenta = new Date(venta.fecha);
+    const fechaStr = format(fechaVenta, 'yyyy-MM-dd');
+    const diaNombre = format(fechaVenta, 'EEEE', { locale: es });
+
+    if (!resumen[fechaStr]) {
+        resumen[fechaStr] = {
+            dia: diaNombre,
+            fecha: fechaStr,
+            vendidos: 0,     // cantidad de ventas
+            ventas: 0,        // total vendido
+            creditos: 0,      // total en crédito
+            ingreso: 0        // SOLO lo pagado
+        };
+    }
+
+    const monto = parseFloat(venta.total);
+
+    // Cantidad de ventas
+    resumen[fechaStr].vendidos += 1;
+
+    // Total vendido (pagado + crédito)
+    resumen[fechaStr].ventas += monto;
+
+    // Totales globales
+    totalVentas += monto;
+
+    if (venta.estado_pago === 'pagado') {
+        // ✅ INGRESO SOLO SI ESTA PAGADO
+        resumen[fechaStr].ingreso += monto;
+        ingresoTotal += monto;
+    } else if (venta.estado_pago === 'pendiente') {
+        // ✅ CRÉDITO SOLO SI ESTA PENDIENTE
+        resumen[fechaStr].creditos += monto;
+        totalCredito += monto;
+    }
+}
+
+        return res.json({
+            resumen,
+            totales: {
+                ingresos: ingresoTotal,
+                creditos: totalCredito,
+                vendidos: totalVentas
+            }
+        });
+
+    } catch (error) {
+        console.error("Error generando reporte de ingresos:", error);
+        return res.status(500).json({ error: "Error generando reporte de ingresos" });
+    }
+};
