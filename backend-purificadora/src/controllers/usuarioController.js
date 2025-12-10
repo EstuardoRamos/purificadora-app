@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const Usuario = require("../models/usuario");
 
 exports.createUsuario = async (req, res) => {
@@ -41,7 +42,18 @@ exports.loginUsuario = async (req, res) => {
             return res.status(401).json({ error: "Contraseña incorrecta" });
         }
 
-        res.json({ message: "Inicio de sesión exitoso" });
+        const payload = {
+            id: usuario.id,
+            nombre: usuario.nombre,
+            correo: usuario.correo,
+            tipo: usuario.tipo,
+        };
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET || "purificadora_dev_secret", {
+            expiresIn: "8h",
+        });
+
+        res.json({ message: "Inicio de sesión exitoso", token, usuario: payload });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -136,3 +148,24 @@ exports.changePassword = async (req, res) => {
     }
 };
 
+exports.forgotPassword = async (req, res) => {
+    const { correo, nuevaContraseña } = req.body;
+
+    if (!correo || !nuevaContraseña) {
+        return res.status(400).json({ error: "Debe proporcionar el correo y la nueva contraseña" });
+    }
+
+    try {
+        const usuario = await Usuario.findOne({ where: { correo } });
+        if (!usuario) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        const hashedPassword = await bcrypt.hash(nuevaContraseña, 10);
+        await usuario.update({ contraseña: hashedPassword });
+
+        res.json({ message: "Contraseña actualizada. Ahora puede iniciar sesión con la nueva contraseña." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
