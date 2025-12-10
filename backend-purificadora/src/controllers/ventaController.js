@@ -364,11 +364,10 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
     totalVentas += monto;
 
     if (venta.estado_pago === 'pagado') {
-        // ✅ INGRESO SOLO SI ESTA PAGADO
         resumen[fechaStr].ingreso += monto;
         ingresoTotal += monto;
     } else if (venta.estado_pago === 'pendiente') {
-        // ✅ CRÉDITO SOLO SI ESTA PENDIENTE
+        
         resumen[fechaStr].creditos += monto;
         totalCredito += monto;
     }
