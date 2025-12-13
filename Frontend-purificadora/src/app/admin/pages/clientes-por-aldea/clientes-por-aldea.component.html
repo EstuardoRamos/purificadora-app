@@ -1,0 +1,94 @@
+<mat-card class="aldeas-card">
+  <mat-card-title>Clientes por Aldea</mat-card-title>
+  <mat-card-subtitle>
+    Panorama general de clientes activos divididos por aldeas.
+  </mat-card-subtitle>
+
+  <div class="estado" *ngIf="isLoading">
+    <mat-icon>hourglass_empty</mat-icon>
+    <span>Cargando información...</span>
+  </div>
+
+  <div class="estado error" *ngIf="errorMessage">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage">
+    <div class="resumen-general">
+      <div class="total-card">
+        <p class="label">Total de clientes</p>
+        <p class="valor">{{ totalGeneral }}</p>
+      </div>
+      <div class="chart-card">
+        <h3>Distribución por aldea</h3>
+        <div class="bar-chart" *ngIf="resumen.length; else sinDatos">
+          <button
+            type="button"
+            class="bar-row"
+            *ngFor="let aldea of resumen; let i = index"
+            (click)="seleccionarAldea(aldea)"
+            [class.activa]="aldeaSeleccionada?.id_aldea === aldea.id_aldea"
+          >
+            <div class="aldea">
+              <span class="nombre">{{ aldea.aldea }}</span>
+              <span class="ruta">{{ aldea.totalClientes }} clientes</span>
+            </div>
+            <div class="bar-wrapper">
+              <div
+                class="bar"
+                [style.width.%]="obtenerPorcentaje(aldea.totalClientes)"
+                [style.background]="obtenerColor(i)"
+              ></div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #sinDatos>
+      <p class="sin-datos">No hay clientes registrados para mostrar.</p>
+    </ng-template>
+
+    <div class="detalle-seleccion" *ngIf="aldeaSeleccionada; else seleccionaAldea">
+      <mat-card class="detalle-card">
+        <mat-card-title>
+          {{ aldeaSeleccionada?.aldea }}
+          <span class="tag">{{ aldeaSeleccionada?.totalClientes }} clientes</span>
+        </mat-card-title>
+        <mat-card-content>
+          <table class="clientes-table" *ngIf="aldeaSeleccionada?.clientes?.length; else sinClientesSeleccion">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Ruta</th>
+                <th>Teléfono</th>
+                <th>Crédito</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cliente of aldeaSeleccionada!.clientes">
+                <td>{{ cliente.nombre }}</td>
+                <td>{{ cliente.ruta }}</td>
+                <td>{{ cliente.telefono }}</td>
+                <td>
+                  <mat-chip-set>
+                    <mat-chip [color]="cliente.credito ? 'warn' : 'primary'" selected>
+                      {{ cliente.credito ? 'Sí' : 'No' }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <ng-template #sinClientesSeleccion>
+            <p class="sin-datos">No hay clientes detallados para esta aldea.</p>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <ng-template #seleccionaAldea>
+      <p class="sin-datos">Selecciona una aldea para ver su detalle.</p>
+    </ng-template>
+  </div>
+</mat-card>

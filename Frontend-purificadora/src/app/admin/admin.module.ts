@@ -21,6 +21,8 @@ import { RegistroInventarioComponent } from './pages/registro-inventario/registr
 import { HistorialInventarioComponent } from './pages/historial-inventario/historial-inventario.component';
 import { VentasService } from './services/ventas.service';
 import { ListarVentasComponent } from './pages/listar-ventas/listar-ventas.component';
+import { ReportesComponent } from './pages/reportes/reportes.component';
+import { ClientesPorAldeaComponent } from './pages/clientes-por-aldea/clientes-por-aldea.component';
 
 
 @NgModule({
@@ -34,7 +36,9 @@ import { ListarVentasComponent } from './pages/listar-ventas/listar-ventas.compo
     InventarioComponent,
     RegistroInventarioComponent,
     HistorialInventarioComponent,
-    ListarVentasComponent
+    ListarVentasComponent,
+    ReportesComponent,
+    ClientesPorAldeaComponent
   ],
   imports: [
     CommonModule,

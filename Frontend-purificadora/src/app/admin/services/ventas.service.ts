@@ -34,4 +34,14 @@ export class VentasService {
   getVentasPorRango(fechaInicio: any, fechaFin: any){
     return this.http.get(`${this.baseUrl}/ventas/fecha?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
   }
+
+  getReporteSemanal(desde: string, hasta: string) {
+    console.log(desde+" hasta "+hasta);
+    
+    return this.http.get(`${this.baseUrl}/ventas/reporte-semanal?desde=${desde}&hasta=${hasta}`);
+  }
+
+  getReporteIngresos(desde: string, hasta: string) {
+    return this.http.get(`${this.baseUrl}/ventas/reporte-ingresos?desde=${desde}&hasta=${hasta}`);
+  }
 }

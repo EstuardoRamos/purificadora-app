@@ -1,0 +1,151 @@
+.aldeas-card {
+  margin: 24px;
+}
+
+.resumen-general {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 24px 0;
+}
+
+.total-card {
+  flex: 1 1 200px;
+  background: #1e88e5;
+  color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+}
+
+.total-card .label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
+}
+
+.total-card .valor {
+  margin: 4px 0 0;
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.chart-card {
+  flex: 3 1 400px;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  color: #212121;
+}
+
+.bar-chart {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  width: 100%;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+}
+
+.bar-row:hover,
+.bar-row.activa {
+  border-color: #90caf9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.bar-row .aldea {
+  min-width: 160px;
+  color: #424242;
+}
+
+.bar-row .nombre {
+  font-weight: 600;
+  display: block;
+}
+
+.bar-row .ruta {
+  font-size: 13px;
+  color: #7a7a7a;
+}
+
+.bar-wrapper {
+  flex: 1;
+  height: 18px;
+  background: #e0e0e0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.aldea-card .avatar {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.clientes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.clientes-table th,
+.clientes-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.detalle-seleccion {
+  margin-top: 24px;
+}
+
+.detalle-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tag {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #1976d2;
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  color: #555;
+}
+
+.estado.error {
+  color: #c62828;
+}
+
+.sin-datos {
+  color: #757575;
+  font-style: italic;
+}

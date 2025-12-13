@@ -10,6 +10,8 @@ import { RegistroInventarioComponent } from './pages/registro-inventario/registr
 import { HistorialInventarioComponent } from './pages/historial-inventario/historial-inventario.component';
 import { ListarVentasComponent } from './pages/listar-ventas/listar-ventas.component';
 import { GestionUsuariosComponent } from './pages/gestion-usuarios/gestion-usuarios.component';
+import { ReportesComponent } from './pages/reportes/reportes.component';
+import { ClientesPorAldeaComponent } from './pages/clientes-por-aldea/clientes-por-aldea.component';
 
 const routes: Routes = [
   {
@@ -51,6 +53,14 @@ const routes: Routes = [
       {
         path: 'listar-ventas',
         component: ListarVentasComponent
+      },
+      {
+        path: 'reportes',
+        component: ReportesComponent
+      },
+      {
+        path: 'clientes-por-aldea',
+        component: ClientesPorAldeaComponent
       },
 
       {

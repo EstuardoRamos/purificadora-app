@@ -20,6 +20,10 @@
             <mat-icon mat-list-icon>people</mat-icon>
             <span class="nav-text">Clientes</span>
         </a>
+        <a href="/admin/clientes-por-aldea" mat-list-item (click)="sidenav.toggle()">
+          <mat-icon mat-list-icon>pie_chart</mat-icon>
+          <span class="nav-text">Clientes por Aldea</span>
+      </a>
         <a href="/admin/usuarios" mat-list-item (click)="sidenav.toggle()">
           <mat-icon mat-list-icon>person</mat-icon>
           <span class="nav-text">Usuarios</span>
@@ -27,6 +31,10 @@
           <a href="/admin/ventas" mat-list-item (click)="sidenav.toggle()">
               <mat-icon mat-list-icon>shopping_cart</mat-icon>
               <span class="nav-text">Ventas</span>
+          </a>
+          <a href="/admin/reportes" mat-list-item (click)="sidenav.toggle()">
+              <mat-icon mat-list-icon>bar_chart</mat-icon>
+              <span class="nav-text">Reportes</span>
           </a>
           <a href="/admin/aldeas" mat-list-item (click)="sidenav.toggle()">
               <mat-icon mat-list-icon>star_border</mat-icon>

@@ -27,4 +27,8 @@ export class ClientesService {
   updateCliente(cliente: Cliente){
     return this.http.put(`${this.baseUrl}/clientes/${cliente.id_cliente}`, cliente)
   }
+
+  getReporteClientesPorAldea() {
+    return this.http.get(`${this.baseUrl}/clientes/reporte/aldeas`);
+  }
 }
