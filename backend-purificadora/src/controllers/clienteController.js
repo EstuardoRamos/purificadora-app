@@ -1,4 +1,5 @@
 const Cliente = require("../models/cliente");
+const Aldea = require("../models/aldea");
 const { Op } = require("sequelize");
 
 // Obtener todos los clientes
@@ -131,6 +132,66 @@ exports.getClientesConCredito = async (req, res) => {
         }
 
         res.json(clientes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getReporteClientesPorAldea = async (_req, res) => {
+    try {
+        const clientes = await Cliente.findAll({
+            include: [
+                {
+                    model: Aldea,
+                    as: "Aldea",
+                    attributes: ["id_aldea", "nombre"]
+                }
+            ],
+            order: [
+                [{ model: Aldea, as: "Aldea" }, "nombre", "ASC"],
+                ["nombre", "ASC"]
+            ]
+        });
+
+        if (clientes.length === 0) {
+            return res.json({ totalGeneral: 0, resumen: [] });
+        }
+
+        const resumenMap = new Map();
+
+        clientes.forEach((cliente) => {
+            const aldea = cliente.Aldea;
+            const key = aldea ? aldea.id_aldea : "sin_aldea";
+
+            if (!resumenMap.has(key)) {
+                resumenMap.set(key, {
+                    id_aldea: aldea ? aldea.id_aldea : null,
+                    aldea: aldea ? aldea.nombre : "Sin aldea asignada",
+                    totalClientes: 0,
+                    clientes: []
+                });
+            }
+
+            const registro = resumenMap.get(key);
+            registro.totalClientes += 1;
+            registro.clientes.push({
+                id_cliente: cliente.id_cliente,
+                nombre: cliente.nombre,
+                ruta: cliente.ruta,
+                telefono: cliente.telefono,
+                credito: cliente.credito,
+                estado: cliente.estado,
+            });
+        });
+
+        const resumen = Array.from(resumenMap.values()).sort((a, b) =>
+            a.aldea.localeCompare(b.aldea)
+        );
+
+        res.json({
+            totalGeneral: clientes.length,
+            resumen,
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
