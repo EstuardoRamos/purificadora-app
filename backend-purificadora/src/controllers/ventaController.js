@@ -6,6 +6,34 @@ const Usuario = require("../models/usuario");
 const MetodoPago = require("../models/metodoPago");
 const { parseISO, format } = require('date-fns');
 const { es } = require('date-fns/locale');
+const { sequelize } = require("../config/database");
+
+const CREDIT_PAYMENT_METHOD_ID = Number(process.env.CREDIT_PAYMENT_METHOD_ID || 2);
+
+const quitarAcentos = (texto = "") =>
+    texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+const esVentaCredito = (venta) => {
+    const metodoId = Number(venta.id_metodo_pago);
+    if (!Number.isNaN(metodoId) && metodoId === CREDIT_PAYMENT_METHOD_ID) {
+        return true;
+    }
+
+    const metodoNombre = quitarAcentos(venta.MetodoPago?.metodo?.toLowerCase?.() || "");
+    if (metodoNombre.includes("credi")) {
+        return true;
+    }
+
+    if (venta.fecha && venta.fecha_pago) {
+        const fechaVenta = new Date(venta.fecha);
+        const fechaPago = new Date(venta.fecha_pago);
+        if (!Number.isNaN(fechaVenta.getTime()) && !Number.isNaN(fechaPago.getTime())) {
+            return fechaPago.getTime() !== fechaVenta.getTime();
+        }
+    }
+
+    return false;
+};
 
 exports.createVenta = async (req, res) => {
     const { id_cliente, id_usuario, id_metodo_pago, productos } = req.body;
@@ -17,12 +45,17 @@ exports.createVenta = async (req, res) => {
             total += producto.cantidad * producto.precio;
         }
 
+        const esCredito = Number(id_metodo_pago) === CREDIT_PAYMENT_METHOD_ID;
+        const fechaActual = new Date();
+
         // Crear la venta
         const venta = await Venta.create({
             id_cliente,
             id_usuario,
             id_metodo_pago,
             total,
+            estado_pago: esCredito ? "pendiente" : "pagado",
+            fecha_pago: esCredito ? null : fechaActual,
         });
 
         // Registrar los detalles de la venta
@@ -49,7 +82,7 @@ exports.createVenta = async (req, res) => {
         }
 
         // Si el método de pago es crédito, actualizar el cliente
-        if (id_metodo_pago === 3) { // Asumiendo que el ID 3 es "Crédito"
+        if (esCredito) { // Asumiendo que el ID 3 es "Crédito"
             const cliente = await Cliente.findByPk(id_cliente);
             if (cliente) {
                 cliente.credito = true;
@@ -186,6 +219,7 @@ exports.actualizarEstadoPago = async (req, res) => {
     }
 
     venta.estado_pago = estado_pago;
+    venta.fecha_pago = estado_pago === "pagado" ? new Date() : null;
     await venta.save();
 
     res.json({ message: "Estado de pago actualizado", venta });
@@ -242,6 +276,32 @@ exports.getReportePorFechas = async (req, res) => {
     }
 };
 
+const buildRangoFechasWhere = (fechaDesde, fechaHasta) => ({
+    [Op.or]: [
+        {
+            estado_pago: "pagado",
+            fecha_pago: {
+                [Op.between]: [fechaDesde, fechaHasta],
+            },
+        },
+        {
+            estado_pago: "pagado",
+            fecha_pago: {
+                [Op.is]: null,
+            },
+            fecha: {
+                [Op.between]: [fechaDesde, fechaHasta],
+            },
+        },
+        {
+            estado_pago: "pendiente",
+            fecha: {
+                [Op.between]: [fechaDesde, fechaHasta],
+            },
+        },
+    ],
+});
+
 exports.getReporteSemanalPorFechas = async (req, res) => {
     try {
         const { desde, hasta } = req.query;
@@ -252,26 +312,33 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
 
         const fechaDesde = new Date(desde);
         const fechaHasta = new Date(hasta);
-        fechaHasta.setHours(23, 59, 59, 999); // <- ¡Esto es clave!
+        fechaHasta.setHours(23, 59, 59, 999);
 
         const ventas = await Venta.findAll({
-            where: {
-                fecha: {
-                    [Op.between]: [fechaDesde, fechaHasta]
-                }
-            },
-            order: [['fecha', 'ASC']]
+            where: buildRangoFechasWhere(fechaDesde, fechaHasta),
+            order: [
+                ["fecha_pago", "ASC"],
+                ["fecha", "ASC"],
+            ],
+            include: [
+                {
+                    model: MetodoPago,
+                    attributes: ["id", "metodo"],
+                },
+            ],
         });
 
         const resumen = {};
+        const ventaIdToFecha = {};
         let totalVentas = 0;
         let totalCredito = 0;
         let totalEntregas = 0;
 
         for (const venta of ventas) {
-            const fechaVenta = new Date(venta.fecha);
-            const fechaStr = format(fechaVenta, 'yyyy-MM-dd');
-            const diaNombre = format(fechaVenta, 'EEEE', { locale: es });
+            const fechaPago = venta.fecha_pago ? new Date(venta.fecha_pago) : null;
+            const fechaVenta = fechaPago && !isNaN(fechaPago) ? fechaPago : new Date(venta.fecha);
+            const fechaStr = format(fechaVenta, "yyyy-MM-dd");
+            const diaNombre = format(fechaVenta, "EEEE", { locale: es });
 
             if (!resumen[fechaStr]) {
                 resumen[fechaStr] = {
@@ -280,7 +347,7 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
                     ventas: 0,
                     credito: 0,
                     entrega_total: 0,
-                    garrafones_en_planta: 110
+                    garrafones_en_planta: 110,
                 };
             }
 
@@ -289,7 +356,7 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
             totalVentas += 1;
             totalEntregas += 1;
 
-            if (venta.estado_pago === 'pendiente') {
+            if (venta.estado_pago === "pendiente") {
                 resumen[fechaStr].credito += 1;
                 totalCredito += 1;
             }
@@ -300,10 +367,9 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
             total: {
                 ventas: totalVentas,
                 credito: totalCredito,
-                entrega_total: totalEntregas
-            }
+                entrega_total: totalEntregas,
+            },
         });
-
     } catch (error) {
         console.error("Error generando reporte semanal:", error);
         return res.status(500).json({ error: "Error generando reporte semanal" });
@@ -320,68 +386,101 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
 
         const fechaDesde = new Date(desde);
         const fechaHasta = new Date(hasta);
-        fechaHasta.setHours(23, 59, 59, 999); // incluir todo el día final
+        fechaHasta.setHours(23, 59, 59, 999);
 
         const ventas = await Venta.findAll({
-            where: {
-                fecha: {
-                    [Op.between]: [fechaDesde, fechaHasta]
-                }
-            },
-            order: [['fecha', 'ASC']]
+            where: buildRangoFechasWhere(fechaDesde, fechaHasta),
+            order: [
+                ["fecha_pago", "ASC"],
+                ["fecha", "ASC"],
+            ],
+            include: [
+                {
+                    model: MetodoPago,
+                    attributes: ["id", "metodo"],
+                },
+            ],
         });
 
         const resumen = {};
-        let totalVentas = 0;
-        let totalCredito = 0;
+        const ventaIdToFecha = {};
+
+        let totalVentasPagadas = 0;
+        let totalCreditosCobrados = 0;
+        let totalCreditosPagados = 0;
         let ingresoTotal = 0;
 
         for (const venta of ventas) {
-    const fechaVenta = new Date(venta.fecha);
-    const fechaStr = format(fechaVenta, 'yyyy-MM-dd');
-    const diaNombre = format(fechaVenta, 'EEEE', { locale: es });
+            if (venta.estado_pago !== "pagado") {
+                continue;
+            }
 
-    if (!resumen[fechaStr]) {
-        resumen[fechaStr] = {
-            dia: diaNombre,
-            fecha: fechaStr,
-            vendidos: 0,     // cantidad de ventas
-            ventas: 0,        // total vendido
-            creditos: 0,      // total en crédito
-            ingreso: 0        // SOLO lo pagado
-        };
-    }
+            const fechaPago = venta.fecha_pago ? new Date(venta.fecha_pago) : null;
+            const pagoEnRango = fechaPago && fechaPago >= fechaDesde && fechaPago <= fechaHasta;
+            const fechaBase = pagoEnRango ? fechaPago : new Date(venta.fecha);
+            const fechaStr = format(fechaBase, "yyyy-MM-dd");
+            const diaNombre = format(fechaBase, "EEEE", { locale: es });
 
-    const monto = parseFloat(venta.total);
+            if (!resumen[fechaStr]) {
+                resumen[fechaStr] = {
+                    dia: diaNombre,
+                    fecha: fechaStr,
+                    vendidos: 0,
+                    ventas: 0,
+                    creditos: 0,
+                    creditos_monto: 0,
+                    ingreso: 0,
+                };
+            }
 
-    // Cantidad de ventas
-    resumen[fechaStr].vendidos += 1;
+            ventaIdToFecha[venta.id] = fechaStr;
 
-    // Total vendido (pagado + crédito)
-    resumen[fechaStr].ventas += monto;
+            const monto = parseFloat(venta.total) || 0;
+            const esCredito = esVentaCredito(venta);
 
-    // Totales globales
-    totalVentas += monto;
+            if (esCredito) {
+                resumen[fechaStr].creditos += 1;
+                resumen[fechaStr].creditos_monto += monto;
+                totalCreditosPagados += 1;
+                totalCreditosCobrados += monto;
+            } else {
+                resumen[fechaStr].ventas += monto;
+                totalVentasPagadas += monto;
+            }
 
-    if (venta.estado_pago === 'pagado') {
-        resumen[fechaStr].ingreso += monto;
-        ingresoTotal += monto;
-    } else if (venta.estado_pago === 'pendiente') {
-        
-        resumen[fechaStr].creditos += monto;
-        totalCredito += monto;
-    }
-}
+            resumen[fechaStr].ingreso = resumen[fechaStr].ventas + resumen[fechaStr].creditos_monto;
+            ingresoTotal += monto;
+        }
+
+        const ventaIds = ventas.map((venta) => venta.id);
+        if (ventaIds.length > 0) {
+            const detalles = await DetalleVenta.findAll({
+                where: {
+                    id_venta: ventaIds,
+                },
+                attributes: ["id_venta", [sequelize.fn("SUM", sequelize.col("cantidad")), "total_cantidad"]],
+                group: ["id_venta"],
+                raw: true,
+            });
+
+            detalles.forEach(({ id_venta, total_cantidad }) => {
+                const fechaStr = ventaIdToFecha[id_venta];
+                if (!fechaStr || !resumen[fechaStr]) {
+                    return;
+                }
+                resumen[fechaStr].vendidos += Number(total_cantidad) || 0;
+            });
+        }
 
         return res.json({
             resumen,
             totales: {
                 ingresos: ingresoTotal,
-                creditos: totalCredito,
-                vendidos: totalVentas
-            }
+                creditos_pagados: totalCreditosPagados,
+                creditos_monto: totalCreditosCobrados,
+                ventas_monto: totalVentasPagadas,
+            },
         });
-
     } catch (error) {
         console.error("Error generando reporte de ingresos:", error);
         return res.status(500).json({ error: "Error generando reporte de ingresos" });

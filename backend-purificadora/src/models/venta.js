@@ -41,6 +41,10 @@ const Venta = sequelize.define("Venta", {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
+    fecha_pago: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     estado_pago: {
         type: DataTypes.STRING,
         allowNull: false,
