@@ -1,9 +1,35 @@
 <mat-card class="crud-card">
   <mat-card-title class="card-title">Gestión de Clientes</mat-card-title>
 
+  <ng-container *ngIf="!mostrarFormulario">
+  <div class="filtros-clientes">
+    <mat-form-field appearance="fill">
+      <mat-label>Buscar nombre o teléfono</mat-label>
+      <input matInput [(ngModel)]="terminoBusqueda" (ngModelChange)="aplicarFiltros()" placeholder="Ej. Joel o 5555" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Ruta</mat-label>
+      <mat-select [(ngModel)]="filtroRuta" (selectionChange)="aplicarFiltros()">
+        <mat-option value="todos">Todas</mat-option>
+        <mat-option *ngFor="let dia of diasSemana" [value]="dia.toLowerCase()">
+          {{ dia }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Aldea</mat-label>
+      <mat-select [(ngModel)]="filtroAldea" (selectionChange)="aplicarFiltros()">
+        <mat-option value="todos">Todas</mat-option>
+        <mat-option *ngFor="let aldea of aldeas" [value]="aldea.id_aldea">{{ aldea.nombre }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <!-- Tabla de Clientes -->
   <div class="table-container">
-    <table mat-table [dataSource]="clientes" class="mat-elevation-z8 clientes-table">
+    <table mat-table [dataSource]="clientesPaginados" class="mat-elevation-z8 clientes-table">
       <!-- Columna: Nombre -->
       <ng-container matColumnDef="nombre">
         <th mat-header-cell *matHeaderCellDef> Nombre </th>
@@ -58,10 +84,21 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </div>
+  <div class="paginacion">
+    <button mat-stroked-button color="primary" (click)="cambiarPagina(-1)" [disabled]="paginaActual === 1">
+      Anterior
+    </button>
+    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+    <button mat-stroked-button color="primary" (click)="cambiarPagina(1)" [disabled]="paginaActual === totalPaginas">
+      Siguiente
+    </button>
+  </div>
+
   <!-- Botón Nuevo Cliente -->
   <button mat-raised-button color="accent" class="nuevo-cliente-btn" (click)="abrirFormulario()">
     Nuevo Cliente
   </button>
+  </ng-container>
 
   <!-- Formulario de Crear/Editar Cliente -->
   <mat-card *ngIf="mostrarFormulario" class="form-card">
@@ -107,7 +144,7 @@
       <!-- Teléfono -->
       <mat-form-field appearance="fill">
         <mat-label>Teléfono</mat-label>
-        <input matInput [(ngModel)]="clienteFormulario.telefono" name="telefono" />
+        <input matInput [(ngModel)]="clienteFormulario.telefono" name="telefono" maxlength="8" pattern="[0-9]{8}" />
       </mat-form-field>
 
       <!-- Botones -->

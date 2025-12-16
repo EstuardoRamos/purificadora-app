@@ -1,34 +1,83 @@
 /* Estilo General */
 .crud-card {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 16px;
-  border-radius: 8px;
-  background-color: #1e1e1e;
-  color: #ffffff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  border-radius: 18px;
+  background: radial-gradient(circle at top, rgba(66, 165, 245, 0.08), transparent 60%), #111217;
+  color: #f5f5f5;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
 }
 
 .card-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.8rem;
+  font-weight: 600;
   text-align: center;
-  margin-bottom: 16px;
-  color: #1976d2;
+  margin-bottom: 24px;
+  color: #7dd3fc;
 }
 
 /* Tabla */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .clientes-table {
   width: 100%;
+  min-width: 800px;
   margin-bottom: 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+th,
+td {
+  white-space: nowrap;
+  text-align: left;
+  padding: 12px 16px;
 }
 
 th {
-  text-align: left;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-mat-icon {
-  font-size: 20px;
+td {
+  color: #d4d4d4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+mat-icon-button {
+  margin: 0 4px;
+}
+
+/* Filtros */
+.filtros-clientes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.filtros-clientes ::ng-deep .mat-mdc-text-field-wrapper,
+.form-card ::ng-deep .mat-mdc-text-field-wrapper {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Paginación */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0 24px;
 }
 
 /* Botón Nuevo Cliente */
@@ -39,67 +88,40 @@ mat-icon {
 
 /* Formulario */
 .form-card {
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 8px;
-  background-color: #161616;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 24px;
+  padding: 20px 24px;
+  border-radius: 18px;
+  background-color: #0f1118;
+  box-shadow: 0 24px 40px rgba(0, 0, 0, 0.45);
+}
+
+.form-card form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 mat-form-field {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .form-buttons {
   display: flex;
-  justify-content: space-between;
-}
-
-/* Contenedor para habilitar el scroll horizontal en pantallas pequeñas */
-.table-container {
-  overflow-x: auto; /* Habilita scroll horizontal */
-  -webkit-overflow-scrolling: touch; /* Suaviza el desplazamiento en dispositivos táctiles */
-}
-
-/* Tabla */
-.clientes-table {
-  width: 100%;
-  min-width: 800px; /* Evita que las columnas se colapsen en pantallas pequeñas */
-  margin-bottom: 16px;
-}
-
-th, td {
-  white-space: nowrap; /* Evita que el contenido se desborde */
-  text-align: left;
-  padding: 8px;
-}
-
-th {
-  font-weight: bold;
-}
-
-td {
-  color: #cfcfcf; /* Texto gris claro */
-}
-
-/* Botones en la tabla */
-mat-icon-button {
-  margin: 0 4px;
+  justify-content: flex-end;
+  gap: 12px;
+  grid-column: 1 / -1;
 }
 
 @media screen and (max-width: 768px) {
-  /* Títulos de la tabla se reducen */
   th {
     font-size: 0.9rem;
   }
 
-  /* Texto en celdas más pequeño */
   td {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
-  /* Iconos más pequeños */
   mat-icon {
     font-size: 18px;
   }

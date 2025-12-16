@@ -24,6 +24,14 @@ export class CrudClientesComponent {
   diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   aldeas:Aldea[]=[]
   clientes: Cliente[]=[];
+  clientesFiltrados: Cliente[] = [];
+  clientesPaginados: Cliente[] = [];
+  terminoBusqueda: string = '';
+  filtroRuta: string = 'todos';
+  filtroAldea: number | 'todos' = 'todos';
+  paginaActual = 1;
+  tamanoPagina = 10;
+  totalPaginas = 1;
 
   displayedColumns = ['nombre', 'ruta', 'aldea', 'direccion', 'coordenadas', 'telefono', 'acciones'];
 
@@ -59,6 +67,12 @@ export class CrudClientesComponent {
       return;
     }
 
+    const telefono = (this.clienteFormulario.telefono || '').trim();
+    if (!/^\d{8}$/.test(telefono)) {
+      alert('El teléfono debe contener exactamente 8 dígitos.');
+      return;
+    }
+
     if (this.clienteSeleccionado) {
       //this.clienteFormulario.id_aldea=this.aldeaSelectId;
       // Actualizar cliente existente
@@ -80,6 +94,7 @@ export class CrudClientesComponent {
   eliminarCliente(cliente: any) {
     if (confirm(`¿Estás seguro de eliminar al cliente "${cliente.nombre}"?`)) {
       this.clientes = this.clientes.filter((c) => c !== cliente);
+      this.aplicarFiltros();
       alert('Cliente eliminado.');
     }
   }
@@ -93,7 +108,7 @@ export class CrudClientesComponent {
     this.clientesService.getClientes().subscribe({
       next: (clientes) => {
         this.clientes = clientes as Cliente[];
-        console.log(clientes);
+        this.aplicarFiltros();
       },
       error: (error) => {
         console.error('Error al obtener clientes:', error);
@@ -104,8 +119,8 @@ export class CrudClientesComponent {
   crearCliente(){
     this.clientesService.crearCliente(this.clienteFormulario).subscribe({
       next: (cliente) => {
-    //    this.clientes.push(cliente);
         alert('Cliente creado con exito.')
+        this.listarClientes();
       },
       error: (error) => {
         console.error('Error al crear cliente:', error);
@@ -119,8 +134,8 @@ export class CrudClientesComponent {
     this.clienteFormulario.id_aldea
     this.clientesService.updateCliente(this.clienteFormulario).subscribe({
       next: (cliente) => {
-    //    this.clientes.push(cliente);
         alert('Cliente actualizado con exito.')
+        this.listarClientes();
       },
       error: (error) => {
         console.error('Error al crear cliente:', error);
@@ -138,5 +153,49 @@ export class CrudClientesComponent {
         console.error('Error al obtener aldeas:', error);
       }
     })
+  }
+
+  aplicarFiltros(): void {
+    const termino = this.terminoBusqueda.trim().toLowerCase();
+    const rutaFiltro = this.filtroRuta.toLowerCase();
+
+    this.clientesFiltrados = this.clientes.filter((cliente) => {
+      const coincideBusqueda =
+        !termino ||
+        cliente.nombre.toLowerCase().includes(termino) ||
+        (cliente.telefono || '').toLowerCase().includes(termino);
+
+      const coincideRuta =
+        rutaFiltro === 'todos' ||
+        (cliente.ruta || '').toLowerCase() === rutaFiltro;
+
+      const coincideAldea =
+        this.filtroAldea === 'todos' ||
+        cliente.id_aldea === this.filtroAldea;
+
+      return coincideBusqueda && coincideRuta && coincideAldea;
+    });
+
+    this.totalPaginas = Math.max(
+      1,
+      Math.ceil(this.clientesFiltrados.length / this.tamanoPagina)
+    );
+    this.paginaActual = Math.min(this.paginaActual, this.totalPaginas);
+    this.actualizarPaginacion();
+  }
+
+  actualizarPaginacion(): void {
+    const inicio = (this.paginaActual - 1) * this.tamanoPagina;
+    const fin = inicio + this.tamanoPagina;
+    this.clientesPaginados = this.clientesFiltrados.slice(inicio, fin);
+  }
+
+  cambiarPagina(delta: number): void {
+    const nuevaPagina = this.paginaActual + delta;
+    if (nuevaPagina < 1 || nuevaPagina > this.totalPaginas) {
+      return;
+    }
+    this.paginaActual = nuevaPagina;
+    this.actualizarPaginacion();
   }
 }
