@@ -44,4 +44,16 @@ export class VentasService {
   getReporteIngresos(desde: string, hasta: string) {
     return this.http.get(`${this.baseUrl}/ventas/reporte-ingresos?desde=${desde}&hasta=${hasta}`);
   }
+
+  getUltimaVentaCliente(idCliente: number) {
+    return this.http.get(`${this.baseUrl}/ventas/cliente/${idCliente}/ultima`);
+  }
+
+  getVentasPendientes() {
+    return this.http.get(`${this.baseUrl}/ventas/pendientes`);
+  }
+
+  actualizarEstadoVenta(idVenta: number, estado: string) {
+    return this.http.put(`${this.baseUrl}/ventas/${idVenta}/estado`, { estado_pago: estado });
+  }
 }

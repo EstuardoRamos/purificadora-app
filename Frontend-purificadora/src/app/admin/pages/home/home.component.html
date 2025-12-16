@@ -24,6 +24,14 @@
           <mat-icon mat-list-icon>pie_chart</mat-icon>
           <span class="nav-text">Clientes por Aldea</span>
       </a>
+        <a href="/admin/gastos" mat-list-item (click)="sidenav.toggle()">
+          <mat-icon mat-list-icon>receipt</mat-icon>
+          <span class="nav-text">Gastos</span>
+      </a>
+      <a href="/admin/creditos" mat-list-item (click)="sidenav.toggle()">
+        <mat-icon mat-list-icon>account_balance</mat-icon>
+        <span class="nav-text">Créditos Pendientes</span>
+    </a>
         <a href="/admin/usuarios" mat-list-item (click)="sidenav.toggle()">
           <mat-icon mat-list-icon>person</mat-icon>
           <span class="nav-text">Usuarios</span>

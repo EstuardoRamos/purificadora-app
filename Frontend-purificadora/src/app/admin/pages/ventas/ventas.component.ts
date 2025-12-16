@@ -4,7 +4,9 @@ import { ProductosService } from '../../services/productos.service';
 import { VentasService } from '../../services/ventas.service';
 import { Cliente } from '../../../interfaces/cliente.interface';
 import { Producto } from '../../../interfaces/producto.interface';
-import { Venta, DetalleVenta } from '../../../interfaces/venta.interface';
+import { Venta, DetalleVenta, UltimaVentaCliente } from '../../../interfaces/venta.interface';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ventas',
@@ -16,10 +18,11 @@ export class VentasComponent implements OnInit {
   clientesFiltrados: Cliente[] = [];
   productos: Producto[] = [];
   productosVenta: Producto[] = [];
-  displayedColumns: string[] = ['nombre', 'telefono', 'coordenadas', 'estado', 'acciones'];
+  displayedColumns: string[] = ['nombre', 'telefono', 'coordenadas', 'estado', 'ultimaCompra', 'acciones'];
   clienteSeleccionado: Cliente | null = null;
   totalVenta: number = 0;
   mostrarFormularioVenta: boolean = false;
+  mostrarConfirmacion: boolean = false;
 
   // Variables para el filtro
   diaSeleccionado: string = '';
@@ -60,6 +63,7 @@ export class VentasComponent implements OnInit {
       next: (data) => {
         this.clientes = data as Cliente[];
         this.filtrarClientesPorDia();
+        this.cargarUltimasCompras();
       },
       error: (err) => console.error('Error al cargar los clientes', err),
     });
@@ -120,44 +124,133 @@ export class VentasComponent implements OnInit {
   guardarVenta(): void {
     if (this.totalVenta > 0 && this.clienteSeleccionado) {
       this.productosVenta = this.construirDetalleVenta();
-      const ventaCompleta = {
-        id_usuario: 1,
-        id_metodo_pago: this.venta.id_fomrma_pago,
-        id_cliente: this.venta.id_cliente,
-        productos: this.productosVenta,
-      };
-
-      this.ventasService.registrarVenta(ventaCompleta).subscribe({
-        next: () => {
-          alert(
-            `Venta registrada exitosamente para ${this.clienteSeleccionado!.nombre}`
-          );
-          this.clienteSeleccionado!.estado = 'abastecido'; // Actualizar estado local
-          
-          // Actualizar la lista filtrada
-          const index = this.clientesFiltrados.findIndex(
-            (c) => c.id_cliente === this.clienteSeleccionado!.id_cliente
-          );
-          if (index !== -1) {
-            this.clientesFiltrados[index].estado = 'abastecido';
-          }
-          
-          this.mostrarFormularioVenta = false;
-          this.resetVenta();
-        },
-        error: (err) => {
-          console.error('Error al registrar la venta', err.error);
-          alert('Error al registrar la venta: ' + err.error.error);
-        },
-      });
+      this.mostrarConfirmacion = true;
     } else {
       alert('Agrega productos y selecciona un cliente antes de guardar la venta.');
     }
   }
 
+  confirmarVenta(): void {
+    if (!(this.totalVenta > 0 && this.clienteSeleccionado)) {
+      return;
+    }
+
+    this.mostrarConfirmacion = false;
+
+    const ventaCompleta = {
+      id_usuario: 1,
+      id_metodo_pago: this.venta.id_fomrma_pago,
+      id_cliente: this.venta.id_cliente,
+      productos: this.productosVenta,
+    };
+
+    this.ventasService.registrarVenta(ventaCompleta).subscribe({
+      next: () => {
+        alert(
+          `Venta registrada exitosamente para ${this.clienteSeleccionado!.nombre}`
+        );
+        const fechaActual = new Date().toISOString();
+        this.clienteSeleccionado!.estado = 'abastecido'; // Actualizar estado local
+        this.clienteSeleccionado!.ultimaCompra = this.formatearFechaCorta(fechaActual);
+        
+        // Actualizar la lista filtrada
+        const index = this.clientesFiltrados.findIndex(
+          (c) => c.id_cliente === this.clienteSeleccionado!.id_cliente
+        );
+        if (index !== -1) {
+          this.clientesFiltrados[index].estado = 'abastecido';
+          this.clientesFiltrados[index].ultimaCompra = this.formatearFechaCorta(fechaActual);
+        }
+        
+        this.mostrarFormularioVenta = false;
+        this.resetVenta();
+      },
+      error: (err) => {
+        console.error('Error al registrar la venta', err.error);
+        alert('Error al registrar la venta: ' + err.error.error);
+      },
+    });
+  }
+
   // Cancelar la venta
   cancelarVenta(): void {
+    this.mostrarConfirmacion = false;
     this.mostrarFormularioVenta = false;
     this.resetVenta();
+  }
+
+  private cargarUltimasCompras(): void {
+    const clientesConId = this.clientes.filter((cliente) => !!cliente.id_cliente);
+    if (!clientesConId.length) {
+      return;
+    }
+
+    const solicitudes = clientesConId.map((cliente) =>
+      this.ventasService.getUltimaVentaCliente(cliente.id_cliente!).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    forkJoin(solicitudes).subscribe({
+      next: (respuestas) => {
+        respuestas.forEach((respuesta, index) => {
+          const cliente = clientesConId[index];
+          if (!cliente) {
+            return;
+          }
+
+          const ultimaVenta = respuesta as UltimaVentaCliente | null;
+          if (ultimaVenta && ultimaVenta.fecha) {
+            cliente.ultimaCompra = this.formatearFechaCorta(ultimaVenta.fecha);
+            cliente.estado = this.esSemanaActual(ultimaVenta.fecha)
+              ? 'abastecido'
+              : 'desabastecido';
+          } else {
+            cliente.ultimaCompra = 'Sin registro';
+            cliente.estado = 'desabastecido';
+          }
+        });
+      },
+      error: (err) => console.error('Error al obtener últimas compras', err),
+    });
+  }
+
+  cerrarConfirmacion(): void {
+    this.mostrarConfirmacion = false;
+  }
+
+  private esSemanaActual(fechaIso: string): boolean {
+    const fecha = new Date(fechaIso);
+    if (isNaN(fecha.getTime())) {
+      return false;
+    }
+
+    const inicioSemana = this.obtenerInicioSemana(new Date());
+    const finSemana = new Date(inicioSemana);
+    finSemana.setDate(finSemana.getDate() + 6);
+    finSemana.setHours(23, 59, 59, 999);
+
+    return fecha >= inicioSemana && fecha <= finSemana;
+  }
+
+  private obtenerInicioSemana(fechaBase: Date): Date {
+    const inicio = new Date(fechaBase);
+    const diaSemana = inicio.getDay(); // 0 = domingo
+    const diferencia = diaSemana === 0 ? 6 : diaSemana - 1; // Semana inicia lunes
+    inicio.setDate(inicio.getDate() - diferencia);
+    inicio.setHours(0, 0, 0, 0);
+    return inicio;
+  }
+
+  private formatearFechaCorta(fechaIso: string): string {
+    const fecha = new Date(fechaIso);
+    if (isNaN(fecha.getTime())) {
+      return 'Sin registro';
+    }
+    return fecha.toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
   }
 }

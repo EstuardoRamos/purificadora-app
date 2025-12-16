@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { VentasService } from '../../services/ventas.service';
+import { GastosService } from '../../services/gastos.service';
 import {
   ReporteSemanalDia,
   ReporteSemanalResponse,
@@ -9,6 +10,7 @@ import {
   ReporteIngresosResponse,
   ReporteIngresosTotales,
 } from '../../../interfaces/reporte-semanal.interface';
+import { Gasto } from '../../../interfaces/gasto.interface';
 
 @Component({
   selector: 'app-reportes',
@@ -37,13 +39,22 @@ export class ReportesComponent implements OnInit {
   resumenTotales: ReporteSemanalTotales | null = null;
   reporteIngresos: ReporteIngresosDia[] = [];
   totalesIngresos: ReporteIngresosTotales | null = null;
+  totalGastos: number = 0;
+  gastosDetalle: Gasto[] = [];
+  mostrarGastosDetalle = false;
+  ingresoNeto: number = 0;
+  totalGarrafonesVendidos = 0;
+  totalMontoVentas = 0;
   fechaDesde: Date | null = null;
   fechaHasta: Date | null = null;
   isLoading = false;
   errorMessage = '';
   tipoReporteSeleccionado: 'semanal' | 'ingresos' = 'semanal';
 
-  constructor(private ventasService: VentasService) {}
+  constructor(
+    private ventasService: VentasService,
+    private gastosService: GastosService
+  ) {}
 
   ngOnInit(): void {
     const { desde, hasta } = this.obtenerRangoInicial();
@@ -80,16 +91,29 @@ export class ReportesComponent implements OnInit {
     forkJoin({
       semanal: this.ventasService.getReporteSemanal(desde, hasta),
       ingresos: this.ventasService.getReporteIngresos(desde, hasta),
+      gastos: this.gastosService.getReporteGastos(desde, hasta),
     }).subscribe({
       next: (data) => {
         const respuestaSemanal = data.semanal as ReporteSemanalResponse;
         const respuestaIngresos = data.ingresos as ReporteIngresosResponse;
+        const respuestaGastos = data.gastos;
 
-        this.reporteSemanal = Object.values(respuestaSemanal.resumen || {});
+        this.reporteSemanal = this.ordenarPorFechaDesc(
+          Object.values(respuestaSemanal.resumen || {})
+        );
         this.resumenTotales = respuestaSemanal.total || null;
 
-        this.reporteIngresos = Object.values(respuestaIngresos.resumen || {});
-        this.totalesIngresos = respuestaIngresos.totales || null;
+        const ingresosDias = Object.values(respuestaIngresos.resumen || {}).map(
+          (dia) => this.normalizarDiaIngreso(dia)
+        );
+        this.reporteIngresos = this.ordenarPorFechaDesc(ingresosDias);
+        this.totalesIngresos = this.normalizarTotalesIngreso(respuestaIngresos.totales);
+        const gastosProcesados = this.procesarGastos(respuestaGastos);
+        this.totalGastos = gastosProcesados.total;
+        this.gastosDetalle = gastosProcesados.gastos;
+        this.actualizarIngresoNeto();
+        this.actualizarResumenIngresos();
+        this.mostrarGastosDetalle = false;
 
         this.isLoading = false;
       },
@@ -100,6 +124,12 @@ export class ReportesComponent implements OnInit {
         this.resumenTotales = null;
         this.reporteIngresos = [];
         this.totalesIngresos = null;
+        this.totalGastos = 0;
+        this.gastosDetalle = [];
+        this.mostrarGastosDetalle = false;
+        this.ingresoNeto = 0;
+        this.totalGarrafonesVendidos = 0;
+        this.totalMontoVentas = 0;
         this.isLoading = false;
       },
     });
@@ -214,11 +244,25 @@ export class ReportesComponent implements OnInit {
           </div>
           <div class="total-item">
             <span class="label">Créditos</span>
-            <span class="value">${this.formatearMoneda(this.totalesIngresos.creditos)}</span>
+            <span class="value">${this.formatearMoneda(
+              this.totalesIngresos.creditos_monto ?? this.totalesIngresos.creditos
+            )}</span>
           </div>
           <div class="total-item">
             <span class="label">Vendidos</span>
-            <span class="value">${this.totalesIngresos.vendidos}</span>
+            <span class="value">${this.totalGarrafonesVendidos}</span>
+          </div>
+          <div class="total-item">
+            <span class="label">Monto Ventas</span>
+            <span class="value">${this.formatearMoneda(this.totalMontoVentas)}</span>
+          </div>
+          <div class="total-item">
+            <span class="label">Gastos</span>
+            <span class="value">${this.formatearMoneda(this.totalGastos)}</span>
+          </div>
+          <div class="total-item">
+            <span class="label">Ingreso Neto</span>
+            <span class="value">${this.formatearMoneda(this.ingresoNeto)}</span>
           </div>
         </div>
       `
@@ -232,7 +276,7 @@ export class ReportesComponent implements OnInit {
             <td>${item.fecha}</td>
             <td>${item.vendidos}</td>
             <td>${this.formatearMoneda(item.ventas)}</td>
-            <td>${this.formatearMoneda(item.creditos)}</td>
+            <td>${this.formatearMoneda(item.creditos_monto ?? item.creditos)}</td>
             <td>${this.formatearMoneda(item.ingreso)}</td>
           </tr>
         `
@@ -324,7 +368,7 @@ export class ReportesComponent implements OnInit {
   }
 
   private formatearFechaVisual(fecha: Date): string {
-    return fecha.toLocaleDateString('es-MX', {
+    return fecha.toLocaleDateString('es-GT', {
       year: 'numeric',
       month: 'short',
       day: '2-digit',
@@ -332,15 +376,133 @@ export class ReportesComponent implements OnInit {
   }
 
   private formatearMoneda(valor: number): string {
-    return new Intl.NumberFormat('es-MX', {
+    return new Intl.NumberFormat('es-GT', {
       style: 'currency',
-      currency: 'MXN',
+      currency: 'GTQ',
       minimumFractionDigits: 2,
     }).format(valor || 0);
   }
 
   private formatearFecha(fecha: Date): string {
     return fecha.toISOString().split('T')[0];
+  }
+
+  private ordenarPorFechaDesc<T extends { fecha: string }>(items: T[]): T[] {
+    return [...items].sort((a, b) => {
+      const fechaA = new Date(a.fecha).getTime();
+      const fechaB = new Date(b.fecha).getTime();
+      return fechaB - fechaA;
+    });
+  }
+
+  private normalizarDiaIngreso(dia: any): ReporteIngresosDia {
+    return {
+      ...dia,
+      vendidos: this.aNumero(dia.vendidos),
+      ventas: this.aNumero(dia.ventas),
+      creditos: this.aNumero(dia.creditos),
+      creditos_monto:
+        dia.creditos_monto !== undefined ? this.aNumero(dia.creditos_monto) : undefined,
+      ingreso: this.aNumero(dia.ingreso),
+    };
+  }
+
+  private normalizarTotalesIngreso(
+    totales?: ReporteIngresosTotales | null
+  ): ReporteIngresosTotales | null {
+    if (!totales) {
+      return null;
+    }
+
+    const creditosMonto =
+      (totales as any).creditos_monto !== undefined
+        ? this.aNumero((totales as any).creditos_monto)
+        : this.aNumero(totales.creditos);
+
+    return {
+      ingresos: this.aNumero(totales.ingresos),
+      creditos: this.aNumero(totales.creditos),
+      vendidos: this.aNumero(totales.vendidos),
+      creditos_monto: creditosMonto,
+    };
+  }
+
+  private aNumero(valor: any): number {
+    if (typeof valor === 'number') {
+      return isNaN(valor) ? 0 : valor;
+    }
+    if (typeof valor === 'string') {
+      const numero = parseFloat(valor);
+      return isNaN(numero) ? 0 : numero;
+    }
+    return 0;
+  }
+
+  toggleGastos(): void {
+    if (!this.gastosDetalle.length) {
+      return;
+    }
+    this.mostrarGastosDetalle = !this.mostrarGastosDetalle;
+  }
+
+  private actualizarResumenIngresos(): void {
+    const vendidosCalculados = this.reporteIngresos.reduce(
+      (sum, dia) => sum + (dia.vendidos || 0),
+      0
+    );
+    const ventasCalculadas = this.reporteIngresos.reduce(
+      (sum, dia) => sum + (dia.ventas || 0),
+      0
+    );
+
+    if (this.totalesIngresos) {
+      this.totalGarrafonesVendidos =
+        this.totalesIngresos.vendidos && this.totalesIngresos.vendidos > 0
+          ? this.totalesIngresos.vendidos
+          : vendidosCalculados;
+      this.totalesIngresos.vendidos = this.totalGarrafonesVendidos;
+    } else {
+      this.totalGarrafonesVendidos = vendidosCalculados;
+    }
+
+    this.totalMontoVentas = ventasCalculadas;
+  }
+
+  private procesarGastos(respuesta: any): { total: number; gastos: Gasto[] } {
+    if (!respuesta) {
+      return { total: 0, gastos: [] };
+    }
+
+    let coleccion: any[] = [];
+    if (Array.isArray(respuesta.resumen)) {
+      coleccion = respuesta.resumen;
+    } else if (Array.isArray(respuesta.gastos)) {
+      coleccion = respuesta.gastos;
+    } else if (Array.isArray(respuesta.data)) {
+      coleccion = respuesta.data;
+    }
+
+    const gastos = coleccion.map((item) => ({
+      ...item,
+      valor: this.aNumero(item.valor),
+    })) as Gasto[];
+
+    let total = 0;
+    if (typeof respuesta.total === 'number') {
+      total = respuesta.total;
+    } else if (typeof respuesta.total === 'string') {
+      const numero = parseFloat(respuesta.total);
+      total = isNaN(numero) ? 0 : numero;
+    } else {
+      total = gastos.reduce((sum: number, gasto: Gasto) => sum + (gasto.valor || 0), 0);
+    }
+
+    return { total, gastos };
+  }
+
+  private actualizarIngresoNeto(): void {
+    const ingresos = this.totalesIngresos?.ingresos ?? 0;
+    this.ingresoNeto = ingresos - (this.totalGastos || 0);
   }
 
   private obtenerRangoInicial(): { desde: Date; hasta: Date } {

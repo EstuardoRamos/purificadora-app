@@ -176,10 +176,9 @@ exports.getUltimaVentaByCliente = async (req, res) => {
     try {
         const venta = await Venta.findOne({
             where: { id_cliente },
+            attributes: ["id", "fecha", "fecha_pago", "estado_pago", "total"],
             include: [
-                { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre", "ruta"] },
-                { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
-                { model: MetodoPago, as: "MetodoPago", attributes: ["id", "metodo"] },
+                { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre"] },
             ],
             order: [["fecha", "DESC"]],
         });
@@ -253,21 +252,26 @@ exports.actualizarEstadoPago = async (req, res) => {
 };
 
 exports.getVentasPendientes = async (req, res) => {
-  try {
-    const ventasPendientes = await Venta.findAll({
-      where: {
-        estado_pago: 'pendiente'
-      }
-    });
+    try {
+        const ventasPendientes = await Venta.findAll({
+            where: {
+                estado_pago: 'pendiente'
+            },
+            include: [
+                { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre", "telefono"] },
+                { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
+            ],
+            order: [["fecha", "ASC"]],
+        });
 
-    if (ventasPendientes.length === 0) {
-      return res.status(404).json({ error: "No hay ventas pendientes" });
+        if (ventasPendientes.length === 0) {
+            return res.status(404).json({ error: "No hay ventas pendientes" });
+        }
+
+        res.json(ventasPendientes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-
-    res.json(ventasPendientes);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
 
@@ -375,14 +379,15 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
                 };
             }
 
-            resumen[fechaStr].ventas += 1;
             resumen[fechaStr].entrega_total += 1;
-            totalVentas += 1;
             totalEntregas += 1;
 
             if (venta.estado_pago === "pendiente") {
                 resumen[fechaStr].credito += 1;
                 totalCredito += 1;
+            } else {
+                resumen[fechaStr].ventas += 1;
+                totalVentas += 1;
             }
         }
 

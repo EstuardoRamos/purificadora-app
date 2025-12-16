@@ -14,6 +14,8 @@ export class ListarVentasComponent implements OnInit {
   // Filtros de fecha
   fechaInicio: Date | null = null;
   fechaFin: Date | null = null;
+  filtroPago: 'todos' | 'pago' | 'credito' = 'todos';
+  totalFiltrado: number = 0;
 
   constructor(private ventasService: VentasService) {}
 
@@ -24,12 +26,23 @@ export class ListarVentasComponent implements OnInit {
   // Listar ventas del día actual
   listarVentasDelDia(): void {
     const hoy = new Date();
-    const fechaActual = hoy.toISOString().split('T')[0]; // Formato: YYYY-MM-DD
-    this.ventasService.getVentasPorFecha(fechaActual).subscribe({
+    const inicio = new Date(hoy);
+    inicio.setHours(0, 0, 0, 0);
+    const fin = new Date(hoy);
+    fin.setHours(23, 59, 59, 999);
+    const fechaInicio = inicio.toISOString().split('T')[0];
+    const fechaFin = fin.toISOString().split('T')[0];
+
+    this.ventasService.getVentasPorRango(fechaInicio, fechaFin).subscribe({
       next: (data) => {
-        this.ventas = data as Venta[];
+        this.ventas = this.filtrarPorMetodoPago(data as Venta[]);
+        this.calcularTotal();
       },
-      error: (err) => console.error('Error al cargar las ventas del día', err),
+      error: (err) => {
+        console.error('Error al cargar las ventas del día', err);
+        this.ventas = [];
+        this.totalFiltrado = 0;
+      },
     });
   }
 
@@ -37,7 +50,8 @@ export class ListarVentasComponent implements OnInit {
   listarTodasLasVentas(): void {
     this.ventasService.getVentas().subscribe({
       next: (data) => {
-        this.ventas = data as Venta[];
+        this.ventas = this.filtrarPorMetodoPago(data as Venta[]);
+        this.calcularTotal();
       },
       error: (err) => console.error('Error al cargar todas las ventas', err),
     });
@@ -49,20 +63,57 @@ export class ListarVentasComponent implements OnInit {
     const fechaFin = this.fechaFin ? this.fechaFin.toISOString().split('T')[0] : null;
 
     if (!fechaInicio && !fechaFin) {
-      alert('Por favor, selecciona al menos una fecha.');
+      this.listarTodasLasVentas();
       return;
     }
 
     this.ventasService.getVentasPorRango(fechaInicio, fechaFin).subscribe({
       next: (data) => {
-        this.ventas = data as Venta[];
+        this.ventas = this.filtrarPorMetodoPago(data as Venta[]);
+        this.calcularTotal();
       },
-      error: (err) => console.error('Error al filtrar las ventas', err),
+      error: (err) => {
+        if (err?.error?.error) {
+          alert(err.error.error);
+        }
+        this.ventas = [];
+        this.totalFiltrado = 0;
+        console.error('Error al filtrar las ventas', err);
+      },
     });
   }
 
   // Ver detalle de una venta
   verDetalle(venta: Venta): void {
     alert(`Detalles de la venta ID: ${venta}`);
+  }
+
+  onMetodoPagoChange(): void {
+    if (this.fechaInicio || this.fechaFin) {
+      this.filtrarPorFechas();
+    } else {
+      this.listarTodasLasVentas();
+    }
+  }
+
+  private filtrarPorMetodoPago(ventas: Venta[]): Venta[] {
+    if (this.filtroPago === 'todos') {
+      return ventas || [];
+    }
+
+    return (ventas || []).filter((venta) => {
+      const metodo = venta.MetodoPago?.metodo?.toLowerCase() || '';
+      if (this.filtroPago === 'pago') {
+        return metodo.includes('pago');
+      }
+      return metodo.includes('crédito') || metodo.includes('credito');
+    });
+  }
+
+  private calcularTotal(): void {
+    this.totalFiltrado = this.ventas.reduce((sum, venta) => {
+      const total = typeof venta.total === 'number' ? venta.total : parseFloat(`${venta.total}`) || 0;
+      return sum + total;
+    }, 0);
   }
 }

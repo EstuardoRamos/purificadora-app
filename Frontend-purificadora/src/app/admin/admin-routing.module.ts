@@ -12,6 +12,8 @@ import { ListarVentasComponent } from './pages/listar-ventas/listar-ventas.compo
 import { GestionUsuariosComponent } from './pages/gestion-usuarios/gestion-usuarios.component';
 import { ReportesComponent } from './pages/reportes/reportes.component';
 import { ClientesPorAldeaComponent } from './pages/clientes-por-aldea/clientes-por-aldea.component';
+import { GastosComponent } from './pages/gastos/gastos.component';
+import { CreditosPendientesComponent } from './pages/creditos-pendientes/creditos-pendientes.component';
 
 const routes: Routes = [
   {
@@ -61,6 +63,14 @@ const routes: Routes = [
       {
         path: 'clientes-por-aldea',
         component: ClientesPorAldeaComponent
+      },
+      {
+        path: 'gastos',
+        component: GastosComponent
+      },
+      {
+        path: 'creditos',
+        component: CreditosPendientesComponent
       },
 
       {

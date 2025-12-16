@@ -24,3 +24,15 @@ export interface MetodoPago{
   id: number;
   metodo: string;
 }
+
+export interface UltimaVentaCliente {
+  id: number;
+  fecha: string;
+  fecha_pago: string | null;
+  estado_pago: string;
+  total: string;
+  Cliente: {
+    id_cliente: number;
+    nombre: string;
+  };
+}

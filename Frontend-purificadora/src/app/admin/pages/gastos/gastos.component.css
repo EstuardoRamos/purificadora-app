@@ -1,0 +1,111 @@
+.gastos-card {
+  margin: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.formulario {
+  background: rgba(33, 33, 33, 0.9);
+  color: #fff;
+}
+
+.formulario mat-form-field {
+  color: #fff;
+}
+
+.formulario ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+.formulario ::ng-deep .mat-mdc-text-field-wrapper {
+  color: #fff;
+}
+
+.formulario .mat-mdc-form-field input,
+.formulario .mat-mdc-form-field textarea {
+  color: #fff;
+}
+
+.formulario .mat-mdc-form-field .mat-mdc-floating-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.formulario mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.formulario mat-card-title {
+  font-weight: 600;
+}
+
+.formulario mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fila .mat-form-field {
+  flex: 1 1 200px;
+}
+
+.observacion-field {
+  width: 100%;
+}
+
+.acciones-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: rgba(33, 33, 33, 0.85);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.acciones-filtro {
+  display: flex;
+  gap: 12px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.gastos-table {
+  width: 100%;
+}
+
+.acciones button {
+  margin-right: 4px;
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+}
+
+.estado.error {
+  color: #c62828;
+}
+
+.total-resumen {
+  font-weight: 600;
+  color: #1e88e5;
+}

@@ -54,15 +54,26 @@ button {
   gap: 16px;
   margin-bottom: 16px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .botones-filtros {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ventas-table {
   width: 100%;
+}
+
+.total-ventas {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.metodo-filtro {
+  min-width: 160px;
 }
 
 mat-card {

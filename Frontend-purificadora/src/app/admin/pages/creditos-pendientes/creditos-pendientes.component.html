@@ -1,0 +1,67 @@
+<mat-card class="creditos-card">
+  <mat-card-title>Créditos Pendientes</mat-card-title>
+  <mat-card-subtitle>Revisa y liquida las ventas a crédito que aún no han sido pagadas.</mat-card-subtitle>
+
+  <div class="estado" *ngIf="isLoading">
+    <mat-icon>hourglass_empty</mat-icon>
+    <span>Cargando créditos...</span>
+  </div>
+  <div class="estado error" *ngIf="errorMessage">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="total-pendiente">
+    Total pendiente: <strong>{{ totalPendiente | currency:'GTQ' }}</strong>
+  </div>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="ventasPendientes" class="mat-elevation-z8 creditos-table">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let venta"> {{ venta.id }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="cliente">
+        <th mat-header-cell *matHeaderCellDef> Cliente </th>
+        <td mat-cell *matCellDef="let venta"> {{ venta.Cliente?.nombre }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="telefono">
+        <th mat-header-cell *matHeaderCellDef> Teléfono </th>
+        <td mat-cell *matCellDef="let venta"> {{ venta.Cliente?.telefono || '-' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef> Total </th>
+        <td mat-cell *matCellDef="let venta"> {{ venta.total | currency:'GTQ' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="fecha">
+        <th mat-header-cell *matHeaderCellDef> Fecha </th>
+        <td mat-cell *matCellDef="let venta"> {{ venta.fecha | date: 'dd/MM/yyyy' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let venta"> {{ venta.estado_pago }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let venta">
+          <button mat-raised-button color="primary" (click)="pagarCredito(venta)">
+            Marcar como pagado
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <p class="sin-datos" *ngIf="!ventasPendientes.length && !isLoading">
+      No hay créditos pendientes actualmente.
+    </p>
+  </div>
+</mat-card>

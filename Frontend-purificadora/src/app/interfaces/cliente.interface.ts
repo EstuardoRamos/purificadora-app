@@ -4,6 +4,7 @@ export interface Cliente{
   ruta: string;
   credito?: boolean;
   estado?: string;
+  ultimaCompra?: string | null;
   direccion:string;
   telefono:string;
   coordenadas?:string;

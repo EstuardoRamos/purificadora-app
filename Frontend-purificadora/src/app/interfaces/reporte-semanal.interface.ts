@@ -24,6 +24,7 @@ export interface ReporteIngresosDia {
   vendidos: number;
   ventas: number;
   creditos: number;
+  creditos_monto?: number;
   ingreso: number;
 }
 
@@ -31,6 +32,7 @@ export interface ReporteIngresosTotales {
   ingresos: number;
   creditos: number;
   vendidos: number;
+  creditos_monto?: number;
 }
 
 export interface ReporteIngresosResponse {
