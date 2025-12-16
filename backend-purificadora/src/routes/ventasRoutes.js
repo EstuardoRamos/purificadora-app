@@ -183,6 +183,7 @@ router.get("/usuario/:id_usuario", ventaController.getVentasByUsuario);
  *         description: Error inesperado al consultar ventas
  */
 router.get("/cliente/:id_cliente", ventaController.getVentasByCliente);
+router.get("/cliente/:id_cliente/ultima", ventaController.getUltimaVentaByCliente);
 
 // Listar ventas por fecha o rango de fechas
 /**

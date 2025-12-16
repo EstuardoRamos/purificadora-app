@@ -169,6 +169,30 @@ exports.getVentasByCliente = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getUltimaVentaByCliente = async (req, res) => {
+    const { id_cliente } = req.params;
+
+    try {
+        const venta = await Venta.findOne({
+            where: { id_cliente },
+            include: [
+                { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre", "ruta"] },
+                { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
+                { model: MetodoPago, as: "MetodoPago", attributes: ["id", "metodo"] },
+            ],
+            order: [["fecha", "DESC"]],
+        });
+
+        if (!venta) {
+            return res.status(404).json({ error: "El cliente no tiene ventas registradas" });
+        }
+
+        res.json(venta);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 const { Op, fn, col, literal } = require("sequelize");
 
 
