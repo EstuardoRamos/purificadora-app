@@ -1,0 +1,174 @@
+.perfil-page {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: #e7f3ff;
+}
+
+.perfil-hero {
+  background: radial-gradient(circle at top left, rgba(0, 122, 204, 0.5), rgba(1, 7, 16, 0.9));
+  border-radius: 30px;
+  padding: 2.5rem;
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.4);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: #7dd3ff;
+}
+
+.perfil-hero h1 {
+  font-size: 2.2rem;
+  margin: 0.3rem 0 0.6rem;
+}
+
+.subtitle {
+  color: #9fb5c8;
+  max-width: 38rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.info-grid .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #8fbdda;
+}
+
+.info-grid strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.formularios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: rgba(6, 10, 15, 0.9);
+  border-radius: 26px;
+  padding: 1.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.hint {
+  color: #90a1b3;
+  margin: 0 0 1rem 0;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: #a9bcd1;
+}
+
+.campo input {
+  border: none;
+  border-radius: 16px;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f5fbff;
+}
+
+.campo input:focus {
+  outline: 1px solid rgba(0, 173, 255, 0.6);
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.password-wrapper input {
+  flex: 1;
+}
+
+.toggle-visibility {
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #73e0ff;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.acciones {
+  margin-top: 0.5rem;
+}
+
+.btn-primario,
+.btn-oscuro {
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primario {
+  background: linear-gradient(135deg, #00ecff, #0091ff);
+  color: #031925;
+}
+
+.btn-oscuro {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fdff;
+}
+
+.btn-primario:disabled,
+.btn-oscuro:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mensaje-exito {
+  font-size: 0.85rem;
+  color: #7de2a7;
+}
+
+.estado {
+  margin: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fefefe;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .perfil-page {
+    padding: 1.25rem;
+  }
+
+  .perfil-hero {
+    padding: 1.8rem;
+  }
+}

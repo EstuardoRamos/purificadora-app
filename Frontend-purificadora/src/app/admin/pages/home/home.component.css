@@ -23,6 +23,13 @@ mat-sidenav {
   margin-top: 64px; /* Altura de la toolbar */
 }
 
+.container {
+  padding: 24px;
+  margin-top: 80px;
+  min-height: calc(100vh - 80px);
+  box-sizing: border-box;
+}
+
 .mdc-list-item__primary-text {
   width: 50%;
 }

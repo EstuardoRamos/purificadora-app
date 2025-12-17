@@ -1,0 +1,107 @@
+<section class="perfil-page" *ngIf="usuarioAuth; else sinUsuario">
+  <header class="perfil-hero">
+    <div>
+      <p class="eyebrow">Mi cuenta</p>
+      <h1>{{ perfilForm.nombre || usuarioAuth?.nombre }}</h1>
+      <p class="subtitle">
+        Gestiona tus datos personales y mantiene tu contraseña actualizada para proteger la información de la purificadora.
+      </p>
+      <div class="info-grid">
+        <div>
+          <span class="label">Correo</span>
+          <strong>{{ perfilForm.correo || usuarioAuth?.correo }}</strong>
+        </div>
+        <div>
+          <span class="label">Rol</span>
+          <strong>{{ (perfilForm.tipo === 1 || usuarioAuth?.tipo === 1) ? 'Administrador' : 'Repartidor' }}</strong>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="formularios">
+    <form #formPerfil="ngForm" class="card" (ngSubmit)="guardarPerfil(formPerfil)">
+      <h2>Información personal</h2>
+      <p class="hint">Actualiza tu nombre, correo y datos de contacto.</p>
+
+      <label class="campo">
+        Nombre
+        <input type="text" name="nombre" [(ngModel)]="perfilForm.nombre" required />
+      </label>
+
+      <label class="campo">
+        Correo
+        <input type="email" name="correo" [(ngModel)]="perfilForm.correo" required />
+      </label>
+
+      <label class="campo">
+        Teléfono
+        <input type="text" name="telefono" maxlength="8" [(ngModel)]="perfilForm.telefono" />
+      </label>
+
+      <label class="campo">
+        Fecha de nacimiento
+        <input type="date" name="fecha_de_nacimiento" [(ngModel)]="perfilForm.fecha_de_nacimiento" />
+      </label>
+
+      <div class="acciones">
+        <button type="submit" class="btn-primario" [disabled]="guardandoPerfil || formPerfil.invalid">
+          {{ guardandoPerfil ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+
+      <div class="mensaje-exito" *ngIf="mensajePerfil">{{ mensajePerfil }}</div>
+    </form>
+
+    <form #formPassword="ngForm" class="card" (ngSubmit)="cambiarPassword(formPassword)">
+      <h2>Cambiar contraseña</h2>
+      <p class="hint">Elige una contraseña segura y única.</p>
+
+      <label class="campo">
+        Contraseña actual
+        <div class="password-wrapper">
+          <input
+            [type]="mostrarPasswordActual ? 'text' : 'password'"
+            name="actual"
+            [(ngModel)]="passwordForm.actual"
+            required
+            minlength="4"
+          />
+          <button type="button" class="toggle-visibility" (click)="togglePasswordActual()" aria-label="Mostrar contraseña actual">
+            {{ mostrarPasswordActual ? 'Ocultar' : 'Mostrar' }}
+          </button>
+        </div>
+      </label>
+
+      <label class="campo">
+        Nueva contraseña
+        <div class="password-wrapper">
+          <input
+            [type]="mostrarPasswordNueva ? 'text' : 'password'"
+            name="nueva"
+            [(ngModel)]="passwordForm.nueva"
+            required
+            minlength="6"
+          />
+          <button type="button" class="toggle-visibility" (click)="togglePasswordNueva()" aria-label="Mostrar nueva contraseña">
+            {{ mostrarPasswordNueva ? 'Ocultar' : 'Mostrar' }}
+          </button>
+        </div>
+      </label>
+
+      <div class="acciones">
+        <button type="submit" class="btn-oscuro" [disabled]="cambiandoPassword || formPassword.invalid">
+          {{ cambiandoPassword ? 'Actualizando...' : 'Actualizar contraseña' }}
+        </button>
+      </div>
+
+      <div class="mensaje-exito" *ngIf="mensajePassword">{{ mensajePassword }}</div>
+    </form>
+  </div>
+</section>
+
+<ng-template #sinUsuario>
+  <div class="estado">
+    No hay información del usuario autenticado.
+  </div>
+</ng-template>

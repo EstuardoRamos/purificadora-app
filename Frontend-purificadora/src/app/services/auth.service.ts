@@ -53,6 +53,15 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  actualizarUsuarioLocal(usuario: AuthUser): void {
+    const token = this.getToken();
+    if (token) {
+      localStorage.setItem(this.tokenKey, token);
+    }
+    localStorage.setItem(this.userKey, JSON.stringify(usuario));
+    this.usuarioSubject.next(usuario);
+  }
+
   private guardarSesion(token: string, usuario: AuthUser): void {
     localStorage.setItem(this.tokenKey, token);
     localStorage.setItem(this.userKey, JSON.stringify(usuario));

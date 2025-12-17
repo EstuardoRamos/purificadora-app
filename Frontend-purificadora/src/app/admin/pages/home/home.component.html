@@ -44,6 +44,15 @@
               <mat-icon mat-list-icon>shopping_cart</mat-icon>
               <span class="nav-text">Ventas</span>
           </a>
+          <a href="/admin/listar-ventas" mat-list-item (click)="sidenav.toggle()">
+              <mat-icon mat-list-icon>shopping_cart</mat-icon>
+              <span class="nav-text">Listar ventas</span>
+          </a>
+          <a routerLink="./mis-ventas" mat-list-item (click)="sidenav.toggle()">
+              <mat-icon mat-list-icon>flare</mat-icon>
+              <span class="nav-text">Mis Ventas</span>
+
+          </a>
           <a href="/admin/reportes" mat-list-item (click)="sidenav.toggle()">
               <mat-icon mat-list-icon>bar_chart</mat-icon>
               <span class="nav-text">Reportes</span>
@@ -53,11 +62,7 @@
               <span class="nav-text">Aldeas</span>
           </a>
 
-          <a routerLink="./mis-ventas" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>flare</mat-icon>
-              <span class="nav-text">Mis Ventas</span>
-
-          </a>
+          
           <a routerLink="./perfil" mat-list-item (click)="sidenav.toggle()">
               <mat-icon mat-list-icon>face</mat-icon>
               <span class="nav-text">Mi perfil</span>

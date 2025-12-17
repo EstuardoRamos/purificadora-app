@@ -15,6 +15,10 @@ export class UsuariosService {
     return this.http.get<Usuario[]>(`${this.baseUrl}/usuarios`);
   }
 
+  getUsuarioPorId(id: number) {
+    return this.http.get<Usuario>(`${this.baseUrl}/usuarios/${id}`);
+  }
+
   crearUsuario(usuario: any) {
     return this.http.post(`${this.baseUrl}/usuarios`, usuario);
   }
@@ -25,5 +29,12 @@ export class UsuariosService {
 
   eliminarUsuario(id: number) {
     return this.http.delete(`${this.baseUrl}/usuarios/${id}`);
+  }
+
+  cambiarContrasena(id: number, currentPassword: string, newPassword: string) {
+    return this.http.put(`${this.baseUrl}/usuarios/${id}/change-password`, {
+      currentPassword,
+      newPassword,
+    });
   }
 }
