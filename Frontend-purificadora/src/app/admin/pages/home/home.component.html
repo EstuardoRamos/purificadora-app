@@ -1,86 +1,63 @@
 <mat-sidenav-container fullscreen>
   <mat-sidenav #sidenav mode="push">
-      <mat-toolbar>
-          <span class="tool-menu-span">Menu</span>
-          <button mat-button class="nav-button" (click)="sidenav.toggle()">
-              <mat-icon style="margin: 4px; font-size: 26px;">arrow_back</mat-icon>
+      <mat-toolbar class="sidenav-header">
+          <span class="menu-title">Menú</span>
+          <button mat-icon-button (click)="sidenav.toggle()">
+              <mat-icon>close</mat-icon>
           </button>
       </mat-toolbar>
 
-      <mat-nav-list>
-          <a routerLink="./" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>home</mat-icon>
-              <span class="nav-text">Home</span>
-          </a>
-          <a   href="/admin/productos"  mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>inventory</mat-icon>
-              <span class="nav-text">Productos</span>
-          </a>
-          <a   href="/admin/registro-inventario"  mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>inventory</mat-icon>
-              <span class="nav-text">Registro de inventario</span>
-          </a>
-          <a href="/admin/clientes" mat-list-item (click)="sidenav.toggle()">
-            <mat-icon mat-list-icon>people</mat-icon>
-            <span class="nav-text">Clientes</span>
-        </a>
-        <a href="/admin/clientes-por-aldea" mat-list-item (click)="sidenav.toggle()">
-          <mat-icon mat-list-icon>pie_chart</mat-icon>
-          <span class="nav-text">Clientes por Aldea</span>
-      </a>
-        <a href="/admin/gastos" mat-list-item (click)="sidenav.toggle()">
-          <mat-icon mat-list-icon>receipt</mat-icon>
-          <span class="nav-text">Gastos</span>
-      </a>
-      <a href="/admin/creditos" mat-list-item (click)="sidenav.toggle()">
-        <mat-icon mat-list-icon>account_balance</mat-icon>
-        <span class="nav-text">Créditos Pendientes</span>
-    </a>
-        <a href="/admin/usuarios" mat-list-item (click)="sidenav.toggle()">
-          <mat-icon mat-list-icon>person</mat-icon>
-          <span class="nav-text">Usuarios</span>
-      </a>
-          <a href="/admin/ventas" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>shopping_cart</mat-icon>
-              <span class="nav-text">Ventas</span>
-          </a>
-          <a href="/admin/listar-ventas" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>shopping_cart</mat-icon>
-              <span class="nav-text">Listar ventas</span>
-          </a>
-          <a routerLink="./mis-ventas" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>flare</mat-icon>
-              <span class="nav-text">Mis Ventas</span>
+      <div class="menu-sections">
+        <ng-container *ngFor="let section of menuSections; let i = index">
+          <ng-container *ngIf="tieneItems(section)">
+            
+            <!-- Header de sección desplegable -->
+            <div class="section-header" (click)="toggleSection(i)">
+              <mat-icon class="section-icon">{{ section.icon }}</mat-icon>
+              <span class="section-title">{{ section.title }}</span>
+              <mat-icon class="expand-icon">
+                {{ section.expanded ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
 
-          </a>
-          <a href="/admin/reportes" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>bar_chart</mat-icon>
-              <span class="nav-text">Reportes</span>
-          </a>
-          <a href="/admin/aldeas" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>star_border</mat-icon>
-              <span class="nav-text">Aldeas</span>
-          </a>
+            <!-- Items de la sección -->
+            <div class="section-items" *ngIf="section.expanded">
+              <ng-container *ngFor="let item of section.items">
+                <a
+                  class="menu-item"
+                  (click)="sidenav.toggle()"
+                  [routerLink]="item.route"
+                  routerLinkActive="active-item"
+                  *ngIf="puedeVer(item.roles)"
+                >
+                  <mat-icon class="item-icon">{{ item.icon }}</mat-icon>
+                  <span class="item-label">{{ item.label }}</span>
+                </a>
+              </ng-container>
+            </div>
 
-          
-          <a routerLink="./perfil" mat-list-item (click)="sidenav.toggle()">
-              <mat-icon mat-list-icon>face</mat-icon>
-              <span class="nav-text">Mi perfil</span>
-          </a>
-      </mat-nav-list>
+          </ng-container>
+        </ng-container>
+      </div>
   </mat-sidenav>
 
-  <mat-toolbar>
-      <button mat-button class="nav-button" (click)="sidenav.toggle()">
-          <mat-icon style="margin: 4px; font-size: 26px;">menu</mat-icon>
+  <mat-toolbar class="main-toolbar">
+      <button mat-icon-button (click)="sidenav.toggle()">
+          <mat-icon>menu</mat-icon>
       </button>
+      
       <span class="spacer"></span>
-      <mat-icon>person</mat-icon>
-      <span>{{ usuarioActual?.nombre || 'Usuario' }}</span>
-      <button mat-button class="nav-button" (click)="cerrarSesion()">
-          <mat-icon style="margin: 4px; font-size: 26px;">logout</mat-icon>
+      
+      <div class="user-section">
+          <mat-icon>account_circle</mat-icon>
+          <span class="user-name">{{ usuarioActual?.nombre || 'Usuario' }}</span>
+      </div>
+      
+      <button mat-icon-button (click)="cerrarSesion()" matTooltip="Cerrar sesión">
+          <mat-icon>logout</mat-icon>
       </button>
   </mat-toolbar>
+
   <div class="container">
       <router-outlet></router-outlet>
   </div>

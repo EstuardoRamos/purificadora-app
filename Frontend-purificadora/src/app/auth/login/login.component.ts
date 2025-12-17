@@ -30,7 +30,8 @@ export class LoginComponent {
     this.authService.login(this.credenciales).subscribe({
       next: () => {
         this.cargando = false;
-        this.router.navigate(['/admin']);
+        const destino = this.authService.getRutaInicio();
+        this.router.navigateByUrl(destino);
       },
       error: (error) => {
         this.cargando = false;

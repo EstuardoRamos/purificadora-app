@@ -53,6 +53,26 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  getRutaInicio(): string {
+    const usuario = this.getUsuarioActual();
+    if (!usuario) {
+      return '/login';
+    }
+    return usuario.tipo === 1 ? '/admin/inicio' : '/admin/mis-ventas';
+  }
+
+  tieneRol(roles?: number[]): boolean {
+    if (!roles || !roles.length) {
+      return true;
+    }
+    const usuario = this.getUsuarioActual();
+    if (!usuario) {
+      return false;
+    }
+    const tipo = Number(usuario.tipo);
+    return roles.includes(tipo);
+  }
+
   actualizarUsuarioLocal(usuario: AuthUser): void {
     const token = this.getToken();
     if (token) {

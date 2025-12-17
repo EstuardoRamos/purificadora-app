@@ -16,76 +16,99 @@ import { GastosComponent } from './pages/gastos/gastos.component';
 import { CreditosPendientesComponent } from './pages/creditos-pendientes/creditos-pendientes.component';
 import { MisVentasComponent } from './pages/mis-ventas/mis-ventas.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
+import { AuthGuard } from '../guards/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children:[
       {
-        path: 'home',
-        component: HomeComponent
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'inicio'
+      },
+      {
+        path: 'inicio',
+        component: ClientesPorAldeaComponent,
+        data: { roles: [1] }
       },
       {
         path: 'ventas',
-        component: VentasComponent
+        component: VentasComponent,
+        data: { roles: [1, 2] }
       },
       {
         path: 'productos',
-        component: CrudProductosComponent
+        component: CrudProductosComponent,
+        data: { roles: [1] }
       },
       {
         path: 'clientes',
-        component: CrudClientesComponent
+        component: CrudClientesComponent,
+        data: { roles: [1, 2] }
       },
       {
         path: 'aldeas',
-        component: CrudAldeasComponent
+        component: CrudAldeasComponent,
+        data: { roles: [1] }
       },
       {
         path: 'inventario',
-        component: InventarioComponent
+        component: InventarioComponent,
+        data: { roles: [1] }
       },
       {
         path: 'registro-inventario',
-        component: RegistroInventarioComponent
+        component: RegistroInventarioComponent,
+        data: { roles: [1] }
       },
       {
         path: 'historial-inventario',
-        component: HistorialInventarioComponent
+        component: HistorialInventarioComponent,
+        data: { roles: [1] }
       },
       {
         path: 'listar-ventas',
-        component: ListarVentasComponent
+        component: ListarVentasComponent,
+        data: { roles: [1] }
       },
       {
         path: 'reportes',
-        component: ReportesComponent
+        component: ReportesComponent,
+        data: { roles: [1] }
       },
       {
         path: 'clientes-por-aldea',
-        component: ClientesPorAldeaComponent
+        component: ClientesPorAldeaComponent,
+        data: { roles: [1] }
       },
       {
         path: 'gastos',
-        component: GastosComponent
+        component: GastosComponent,
+        data: { roles: [1] }
       },
       {
         path: 'creditos',
-        component: CreditosPendientesComponent
+        component: CreditosPendientesComponent,
+        data: { roles: [1, 2] }
       },
       {
         path: 'mis-ventas',
-        component: MisVentasComponent
+        component: MisVentasComponent,
+        data: { roles: [1, 2] }
       },
       {
         path: 'perfil',
-        component: PerfilComponent
+        component: PerfilComponent,
+        data: { roles: [1, 2] }
       },
-
       {
         path: 'usuarios',
-        component: GestionUsuariosComponent
+        component: GestionUsuariosComponent,
+        data: { roles: [1] }
       },
     ]
   }

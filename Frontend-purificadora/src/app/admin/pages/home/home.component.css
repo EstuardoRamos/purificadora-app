@@ -1,91 +1,144 @@
-/* cliente.component.css */
+/* ===== CONTENEDOR PRINCIPAL ===== */
 .sidenav-container {
   height: 100vh;
 }
 
-mat-toolbar {
+/* ===== TOOLBAR PRINCIPAL ===== */
+.main-toolbar {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 2;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.user-name {
+  font-size: 0.9rem;
+}
+
+/* ===== SIDENAV ===== */
 mat-sidenav {
-  width: 200px;
+  width: 280px;
 }
 
-.content {
-  padding: 20px;
-  margin-top: 64px; /* Altura de la toolbar */
-}
-
-.container {
-  padding: 24px;
-  margin-top: 80px;
-  min-height: calc(100vh - 80px);
-  box-sizing: border-box;
-}
-
-.mdc-list-item__primary-text {
-  width: 50%;
-}
-
-.mat-mdc-nav-list .mat-mdc-list-item {
-  border-radius: var(--mat-list-active-indicator-shape);
-  --mat-mdc-focus-indicator-border-radius: var(
-    --mat-list-active-indicator-shape
-  );
-  height: 3rem;
-}
-
-.mat-list-item {
+.sidenav-header {
   display: flex;
-  vertical-align: middle;
+  justify-content: space-between;
   align-items: center;
-  padding: 2rem 3rem; /* Ajusta el espacio alrededor de los elementos */
+  padding: 0 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.item-content {
-  pointer-events: auto;
-  margin: auto;
+.menu-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* ===== SECCIONES ===== */
+.menu-sections {
+  padding: 0.5rem 0;
+}
+
+.section-header {
   display: flex;
   align-items: center;
-  vertical-align: middle;
-  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.mat-list-icon,
-.mat-list-text {
-  /* display: inline-block;*/
-  vertical-align: middle; /* Alinea verticalmente los iconos */
+.section-header:hover {
+  background: rgba(0, 0, 0, 0.04);
 }
 
-.mat-list-icon {
-  margin-right: 2rem; /* Aumenta el espacio entre el icono y el texto */
-  font-size: 24px; /* Ajusta el tamaño del icono si es necesario */
-}
-
-.mat-icon {
+.section-icon {
   font-size: 1.5rem;
-  width: auto;
-  height: auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0.7;
 }
 
-.mat-mdc-icon-button .mdc-button__label,
-.mat-mdc-icon-button .mat-icon {
-  z-index: 1;
-  position: absolute;
-  right: -7px;
-  top: 4px;
-  font-size: 35px;
+.section-title {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 400;
 }
 
-.nav-text {
-  padding: 0.85rem;
-  vertical-align: 0.4rem; /* Alinea verticalmente el texto */
-  line-height: 2rem; /* Alinea con el tamaño del icono */
+.expand-icon {
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0.5;
+}
+
+/* ===== ITEMS DE MENÚ ===== */
+.section-items {
+  background: rgba(0, 0, 0, 0.02);
+  padding: 0.25rem 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem 0.75rem 3.25rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.menu-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.menu-item.active-item {
+  background: rgba(0, 0, 0, 0.08);
+  font-weight: 500;
+}
+
+.item-icon {
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0.65;
+}
+
+.item-label {
+  font-size: 0.9rem;
+}
+
+/* ===== CONTENEDOR ===== */
+.container {
+  padding: 2rem;
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  mat-sidenav {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+  
+  .user-name {
+    display: none;
+  }
 }
