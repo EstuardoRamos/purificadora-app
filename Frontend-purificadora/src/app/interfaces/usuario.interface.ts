@@ -5,7 +5,8 @@ export interface Usuario{
   contraseña: string;
   telefono: number;
   fecha_nacimiento: Date;
-  tipo: TipoUsuario
+  tipo: TipoUsuario;
+  activo?: boolean;
 }
 
 export interface TipoUsuario{

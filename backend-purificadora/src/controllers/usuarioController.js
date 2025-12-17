@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const Usuario = require("../models/usuario");
 
 exports.createUsuario = async (req, res) => {
-    const { nombre, correo, telefono, tipo, contraseña, fecha_de_nacimiento } = req.body;
+    const { nombre, correo, telefono, tipo, contraseña, fecha_de_nacimiento, activo = true } = req.body;
 
     try {
         // Encriptar la contraseña antes de guardar el usuario
@@ -18,6 +18,7 @@ exports.createUsuario = async (req, res) => {
             tipo,
             contraseña: hashedPassword, // Guardar la contraseña encriptada
             fecha_de_nacimiento,
+            activo,
         });
 
         res.status(201).json(usuario);
@@ -34,6 +35,10 @@ exports.loginUsuario = async (req, res) => {
         const usuario = await Usuario.findOne({ where: { correo } });
         if (!usuario) {
             return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        if (usuario.activo === false) {
+            return res.status(403).json({ error: "Usuario desactivado" });
         }
 
         // Verificar la contraseña ingresada con la contraseña encriptada almacenada
@@ -83,7 +88,7 @@ exports.getUsuarioById = async (req, res) => {
 
 exports.updateUsuario = async (req, res) => {
     const { id } = req.params;
-    const { nombre, correo, telefono, tipo, contraseña, fecha_de_nacimiento } = req.body;
+    const { nombre, correo, telefono, tipo, contraseña, fecha_de_nacimiento, activo } = req.body;
     try {
         const usuario = await Usuario.findByPk(id);
         if (!usuario) {
@@ -96,6 +101,7 @@ exports.updateUsuario = async (req, res) => {
             tipo,
             contraseña,
             fecha_de_nacimiento,
+            ...(activo !== undefined ? { activo } : {}),
         });
         res.json(usuario);
     } catch (error) {

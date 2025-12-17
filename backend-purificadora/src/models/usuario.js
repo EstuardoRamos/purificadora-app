@@ -61,6 +61,11 @@ const Usuario = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
   },
   {
     tableName: "usuario",
