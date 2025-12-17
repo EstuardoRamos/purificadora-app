@@ -6,6 +6,9 @@ export interface Venta{
   total: number;
   id_usuario: number;
   id_fomrma_pago: number;
+  fecha?: string;
+  fecha_pago?: string | null;
+  estado_pago?: string;
   Cliente?: Cliente;
   Usuario?: Usuario;
   MetodoPago?: MetodoPago;

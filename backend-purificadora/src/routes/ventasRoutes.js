@@ -138,6 +138,18 @@ router.get("/", ventaController.getAllVentas);
  *         schema:
  *           type: integer
  *         description: ID del usuario
+ *       - in: query
+ *         name: desde
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha inicial (opcional)
+ *       - in: query
+ *         name: hasta
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha final (opcional)
  *     responses:
  *       200:
  *         description: Ventas asociadas al usuario

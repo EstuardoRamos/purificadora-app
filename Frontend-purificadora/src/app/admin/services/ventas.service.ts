@@ -56,4 +56,23 @@ export class VentasService {
   actualizarEstadoVenta(idVenta: number, estado: string) {
     return this.http.put(`${this.baseUrl}/ventas/${idVenta}/estado`, { estado_pago: estado });
   }
+
+  getVentasUsuario(idUsuario: number, desde?: string, hasta?: string) {
+    let url = `${this.baseUrl}/ventas/usuario/${idUsuario}`;
+    const params: string[] = [];
+
+    if (desde) {
+      params.push(`desde=${desde}`);
+    }
+
+    if (hasta) {
+      params.push(`hasta=${hasta}`);
+    }
+
+    if (params.length) {
+      url += `?${params.join('&')}`;
+    }
+
+    return this.http.get(url);
+  }
 }

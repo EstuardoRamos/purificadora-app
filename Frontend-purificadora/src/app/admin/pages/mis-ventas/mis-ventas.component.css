@@ -1,0 +1,203 @@
+.mis-ventas {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: #e5edf5;
+}
+
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, rgba(0, 53, 89, 0.9), rgba(0, 15, 30, 0.9));
+  border-radius: 28px;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+  color: #7ecfff;
+}
+
+.hero-card h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.subtitle {
+  color: #9db9cf;
+  max-width: 32rem;
+}
+
+.total-card {
+  min-width: 220px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 22px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.total-card span {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9cc7de;
+}
+
+.total-card strong {
+  font-size: 1.8rem;
+}
+
+.refresh {
+  margin-top: auto;
+  border: none;
+  border-radius: 16px;
+  padding: 0.6rem 1rem;
+  background: #00a8ff;
+  color: #04131b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filtros-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  background: rgba(7, 13, 18, 0.9);
+  border-radius: 24px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.filtro-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: #9bb3c9;
+}
+
+.filtro-control input {
+  border: none;
+  border-radius: 14px;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f2fbff;
+}
+
+.filtro-control input:focus {
+  outline: 1px solid rgba(0, 180, 255, 0.7);
+}
+
+.acciones-filtro {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-dark {
+  background: linear-gradient(120deg, #ff8c37, #ff4b1f);
+  color: #0f0502;
+}
+
+.btn-link {
+  background: transparent;
+  color: #66d6ff;
+}
+
+.tabla-wrapper {
+  background: rgba(3, 5, 8, 0.9);
+  border-radius: 24px;
+  padding: 1rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th,
+td {
+  padding: 0.9rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+th {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #6f8298;
+}
+
+.numero {
+  text-align: right;
+}
+
+.estado-chip {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(66, 211, 146, 0.15);
+  color: #79f8be;
+  text-transform: capitalize;
+  font-size: 0.85rem;
+}
+
+.estado-chip.pendiente {
+  background: rgba(255, 137, 137, 0.15);
+  color: #ffb4b4;
+}
+
+.estado {
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f0f6ff;
+  text-align: center;
+}
+
+.estado.vacio {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .mis-ventas {
+    padding: 1.25rem;
+  }
+
+  .hero-card {
+    padding: 1.5rem;
+  }
+
+  table {
+    min-width: 100%;
+  }
+}

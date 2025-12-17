@@ -128,9 +128,19 @@ exports.getAllVentas = async (req, res) => {
 
 exports.getVentasByUsuario = async (req, res) => {
     const { id_usuario } = req.params;
+    const { desde, hasta } = req.query;
+
+    const where = { id_usuario };
+
+    if (desde && hasta) {
+        where.fecha = {
+            [Op.between]: [new Date(`${desde} 00:00:00`), new Date(`${hasta} 23:59:59`)],
+        };
+    }
+
     try {
         const ventas = await Venta.findAll({
-            where: { id_usuario },
+            where,
             include: [
                 { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre"] },
                 { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },

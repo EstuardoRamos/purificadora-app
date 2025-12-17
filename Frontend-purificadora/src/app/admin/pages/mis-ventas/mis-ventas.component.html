@@ -1,0 +1,73 @@
+<section class="mis-ventas">
+  <header class="hero-card">
+    <div>
+      <p class="eyebrow">Resumen personal</p>
+      <h1>Mis ventas</h1>
+      <p class="subtitle">
+        {{ usuarioActual?.nombre || 'Usuario' }}, revisa las ventas que has registrado y mantén control de tus ingresos diarios.
+      </p>
+    </div>
+    <div class="total-card">
+      <span>Total del periodo</span>
+      <strong>{{ totalVentas | currency: 'GTQ':'symbol-narrow':'1.2-2' }}</strong>
+      <button class="refresh" type="button" (click)="cargarVentas()" [disabled]="cargando">
+        {{ cargando ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="filtros-card">
+    <div class="filtro-control">
+      <label>Desde</label>
+      <input type="date" [(ngModel)]="filtros.desde" />
+    </div>
+    <div class="filtro-control">
+      <label>Hasta</label>
+      <input type="date" [(ngModel)]="filtros.hasta" />
+    </div>
+    <div class="acciones-filtro">
+      <button type="button" class="btn btn-dark" (click)="aplicarFiltros()">Filtrar</button>
+      <button type="button" class="btn btn-link" (click)="limpiarFiltros()">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="estado" *ngIf="mensajeError">
+    {{ mensajeError }}
+  </div>
+
+  <div class="tabla-wrapper" *ngIf="ventas.length; else vacioTemplate">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Método</th>
+          <th>Estado</th>
+          <th class="numero">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let venta of ventas">
+          <td>{{ obtenerFechaBonita(venta) }}</td>
+          <td>{{ venta.Cliente?.nombre || 'Sin cliente' }}</td>
+          <td>{{ venta.MetodoPago?.metodo || (venta['MetodoPago']?.metodo) || 'N/D' }}</td>
+          <td>
+            <span class="estado-chip" [class.pendiente]="venta.estado_pago === 'pendiente'">
+              {{ venta.estado_pago || 'pendiente' }}
+            </span>
+          </td>
+          <td class="numero">
+            {{ (venta.total || 0) | currency: 'GTQ':'symbol-narrow':'1.2-2' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #vacioTemplate>
+    <div class="estado vacio">
+      <p>No se encontraron ventas para el periodo seleccionado.</p>
+      <button type="button" class="btn btn-dark" (click)="cargarVentas()">Intentar de nuevo</button>
+    </div>
+  </ng-template>
+</section>

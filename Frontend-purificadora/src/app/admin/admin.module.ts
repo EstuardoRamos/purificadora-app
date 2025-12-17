@@ -25,6 +25,7 @@ import { ReportesComponent } from './pages/reportes/reportes.component';
 import { ClientesPorAldeaComponent } from './pages/clientes-por-aldea/clientes-por-aldea.component';
 import { GastosComponent } from './pages/gastos/gastos.component';
 import { CreditosPendientesComponent } from './pages/creditos-pendientes/creditos-pendientes.component';
+import { MisVentasComponent } from './pages/mis-ventas/mis-ventas.component';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { CreditosPendientesComponent } from './pages/creditos-pendientes/credito
     ReportesComponent,
     ClientesPorAldeaComponent,
     GastosComponent,
-    CreditosPendientesComponent
+    CreditosPendientesComponent,
+    MisVentasComponent
   ],
   imports: [
     CommonModule,
