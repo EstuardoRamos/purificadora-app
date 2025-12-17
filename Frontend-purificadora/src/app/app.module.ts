@@ -1,16 +1,17 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MaterialModule } from './material/material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+import { LoginComponent } from './auth/login/login.component';
 
 @NgModule({
   declarations: [
-    AppComponent // Declaración de componentes principales
+    AppComponent,
+    LoginComponent // Declaración de componentes principales
   ],
   imports: [
     BrowserModule,
@@ -18,8 +19,7 @@ import { FormsModule } from '@angular/forms';
     AppRoutingModule,
     MaterialModule,
     FormsModule,
-    HttpClientModule,
-    RouterModule.forRoot([]) // Configura rutas más adelante
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent], // Punto de inicio

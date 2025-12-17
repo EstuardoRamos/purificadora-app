@@ -1,0 +1,46 @@
+<div class="login-layout">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Controla tu purificadora</h1>
+      <p>Inicia sesión para gestionar clientes, ventas y reportes.</p>
+    </div>
+
+    <form #loginForm="ngForm" (ngSubmit)="iniciarSesion(loginForm)" class="login-form">
+      <label class="input-label">
+        Correo electrónico
+        <input
+          type="email"
+          name="correo"
+          required
+          [(ngModel)]="credenciales.correo"
+          placeholder="admin@purificadora.com"
+        />
+      </label>
+
+      <label class="input-label password-field">
+        Contraseña
+        <div class="password-wrapper">
+          <input
+            [type]="ocultarPassword ? 'password' : 'text'"
+            name="contraseña"
+            required
+            minlength="4"
+            [(ngModel)]="credenciales.contrasena"
+            placeholder="••••••••"
+          />
+          <button type="button" class="toggle-password" (click)="togglePassword()" aria-label="Ver contraseña">
+            {{ ocultarPassword ? 'Mostrar' : 'Ocultar' }}
+          </button>
+        </div>
+      </label>
+
+      <button class="login-button" type="submit" [disabled]="loginForm.invalid || cargando">
+        {{ cargando ? 'Ingresando...' : 'Entrar al panel' }}
+      </button>
+    </form>
+
+    <div class="error-message" *ngIf="mensajeError">
+      {{ mensajeError }}
+    </div>
+  </div>
+</div>

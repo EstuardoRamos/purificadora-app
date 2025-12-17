@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ClientesService } from '../../services/clientes.service';
 import { ProductosService } from '../../services/productos.service';
 import { VentasService } from '../../services/ventas.service';
@@ -7,13 +7,15 @@ import { Producto } from '../../../interfaces/producto.interface';
 import { Venta, DetalleVenta, UltimaVentaCliente } from '../../../interfaces/venta.interface';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ventas',
   templateUrl: './ventas.component.html',
   styleUrls: ['./ventas.component.css'],
 })
-export class VentasComponent implements OnInit {
+export class VentasComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];
   clientesFiltrados: Cliente[] = [];
   productos: Producto[] = [];
@@ -23,6 +25,7 @@ export class VentasComponent implements OnInit {
   totalVenta: number = 0;
   mostrarFormularioVenta: boolean = false;
   mostrarConfirmacion: boolean = false;
+  private usuarioSub?: Subscription;
 
   // Variables para el filtro
   diaSeleccionado: string = '';
@@ -34,20 +37,26 @@ export class VentasComponent implements OnInit {
     id_cliente: 0,
     fecha_compra: new Date(),
     total: 0,
-    id_usuario: 1, // Cambiar por el usuario actual autenticado
+    id_usuario: 0,
     id_fomrma_pago: 1, // 1 = Pago, 2 = Crédito
   };
 
   constructor(
     private clientesService: ClientesService,
     private productosService: ProductosService,
-    private ventasService: VentasService
+    private ventasService: VentasService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.establecerUsuario();
     this.inicializarDiaActual();
     this.cargarTodosLosClientes();
     this.cargarProductos();
+  }
+
+  ngOnDestroy(): void {
+    this.usuarioSub?.unsubscribe();
   }
 
   // Inicializar el día actual
@@ -134,11 +143,15 @@ export class VentasComponent implements OnInit {
     if (!(this.totalVenta > 0 && this.clienteSeleccionado)) {
       return;
     }
+    if (!this.venta.id_usuario) {
+      alert('No se pudo determinar el usuario que registra la venta.');
+      return;
+    }
 
     this.mostrarConfirmacion = false;
 
     const ventaCompleta = {
-      id_usuario: 1,
+      id_usuario: this.venta.id_usuario,
       id_metodo_pago: this.venta.id_fomrma_pago,
       id_cliente: this.venta.id_cliente,
       productos: this.productosVenta,
@@ -251,6 +264,17 @@ export class VentasComponent implements OnInit {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
+    });
+  }
+
+  private establecerUsuario(): void {
+    const usuario = this.authService.getUsuarioActual();
+    if (usuario) {
+      this.venta.id_usuario = usuario.id;
+    }
+
+    this.usuarioSub = this.authService.getUsuario$().subscribe((user) => {
+      this.venta.id_usuario = user?.id || 0;
     });
   }
 }

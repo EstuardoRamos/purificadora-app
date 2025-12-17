@@ -71,8 +71,8 @@
       </button>
       <span class="spacer"></span>
       <mat-icon>person</mat-icon>
-      <span>Administrador</span>
-      <button mat-button class="nav-button" >
+      <span>{{ usuarioActual?.nombre || 'Usuario' }}</span>
+      <button mat-button class="nav-button" (click)="cerrarSesion()">
           <mat-icon style="margin: 4px; font-size: 26px;">logout</mat-icon>
       </button>
   </mat-toolbar>
