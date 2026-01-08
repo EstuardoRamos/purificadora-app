@@ -92,11 +92,6 @@
             <td mat-cell *matCellDef="let reporte"> {{ reporte.entrega_total }} </td>
           </ng-container>
 
-          <ng-container matColumnDef="garrafones_en_planta">
-            <th mat-header-cell *matHeaderCellDef> Existencias en Planta </th>
-            <td mat-cell *matCellDef="let reporte"> {{ reporte.garrafones_en_planta }} </td>
-          </ng-container>
-
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>

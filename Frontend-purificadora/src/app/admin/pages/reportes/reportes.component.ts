@@ -24,7 +24,6 @@ export class ReportesComponent implements OnInit {
     'ventas',
     'credito',
     'entrega_total',
-    'garrafones_en_planta',
   ];
   displayedIngresosColumns: string[] = [
     'dia',

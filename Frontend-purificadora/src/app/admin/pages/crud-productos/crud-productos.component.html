@@ -12,7 +12,9 @@
     <!-- Columna: Precio -->
     <ng-container matColumnDef="precio">
       <th mat-header-cell *matHeaderCellDef> Precio </th>
-      <td mat-cell *matCellDef="let producto"> ${{ producto.precio }} </td>
+      <td mat-cell *matCellDef="let producto">
+        {{ producto.precio | currency: 'GTQ':'symbol-narrow':'1.2-2' }}
+      </td>
     </ng-container>
 
     <!-- Columna: Categoría -->
