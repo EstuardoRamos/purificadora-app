@@ -29,7 +29,7 @@ exports.createUsuario = async (req, res) => {
 
 
 exports.loginUsuario = async (req, res) => {
-    const { correo, contraseña } = req.body;
+    const { correo, contrasena } = req.body;
 
     try {
         const usuario = await Usuario.findOne({ where: { correo } });
@@ -41,8 +41,8 @@ exports.loginUsuario = async (req, res) => {
             return res.status(403).json({ error: "Usuario desactivado" });
         }
 
-        // Verificar la contraseña ingresada con la contraseña encriptada almacenada
-        const isMatch = await bcrypt.compare(contraseña, usuario.contraseña);
+        // Verificar la contrasena ingresada con la contrasena encriptada almacenada
+        const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
         if (!isMatch) {
             return res.status(401).json({ error: "Contraseña incorrecta" });
         }
