@@ -49,7 +49,7 @@ const Usuario = sequelize.define(
         notNull: { msg: "El tipo de usuario no puede ser nulo" },
       },
     },
-    contraseña: {
+    contrasena: {
       type: DataTypes.STRING(100),
       field: "contrasena",
       allowNull: false,
