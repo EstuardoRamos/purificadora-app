@@ -51,6 +51,7 @@ const Usuario = sequelize.define(
     },
     contraseña: {
       type: DataTypes.STRING(100),
+      field: "contrasena",
       allowNull: false,
       validate: {
         notNull: { msg: "La contraseña no puede ser nula" },

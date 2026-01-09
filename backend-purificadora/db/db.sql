@@ -15,14 +15,14 @@ CREATE TABLE usuario (
     correo VARCHAR(100) NOT NULL UNIQUE,
     tipo INT,
     telefono INT,
-    contraseña VARCHAR(100) NOT NULL,
+    contrasena VARCHAR(100) NOT NULL,
     fecha_de_nacimiento DATE,
     FOREIGN KEY (tipo) REFERENCES tipo_usuario(id)
 );
 
 CREATE TABLE aldea(
     id_aldea INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
+    nombre VARCHAR(100) NOT NULL
 );
 
 -- Tabla para clientes
