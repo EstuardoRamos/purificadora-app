@@ -525,3 +525,58 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
         return res.status(500).json({ error: "Error generando reporte de ingresos" });
     }
 };
+
+exports.deleteVenta = async (req, res) => {
+    const { id } = req.params;
+    const t = await sequelize.transaction();
+
+    try {
+        // Buscamos la venta con sus detalles
+        const venta = await Venta.findByPk(id, {
+            include: [{ model: DetalleVenta }],
+            transaction: t
+        });
+
+        if (!venta) {
+            await t.rollback();
+            return res.status(404).json({ error: "La venta no existe" });
+        }
+
+        // Sequelize puede nombrar la propiedad como 'DetalleVentas' o 'DetalleVenta'
+        const detalles = venta.DetalleVentas || venta.DetalleVenta || [];
+
+        // 1. Restaurar el inventario
+        for (const detalle of detalles) {
+            const inventario = await Inventario.findOne({ 
+                where: { id_producto: detalle.id_producto },
+                transaction: t
+            });
+
+            if (inventario) {
+                // Sumamos la cantidad vendida de vuelta al stock
+                const nuevaCantidad = Number(inventario.cantidad) + Number(detalle.cantidad);
+                await inventario.update({ cantidad: nuevaCantidad }, { transaction: t });
+            }
+        }
+
+        // 2. Eliminar primero los detalles (Hijos)
+        await DetalleVenta.destroy({
+            where: { id_venta: id },
+            transaction: t
+        });
+
+        // 3. Eliminar la venta (Padre)
+        await Venta.destroy({
+            where: { id: id },
+            transaction: t
+        });
+
+        await t.commit();
+        res.json({ message: "Venta eliminada y stock restaurado exitosamente" });
+
+    } catch (error) {
+        await t.rollback();
+        console.error("Error en deleteVenta:", error);
+        res.status(500).json({ error: "Error al eliminar la venta: " + error.message });
+    }
+};

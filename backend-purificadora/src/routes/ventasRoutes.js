@@ -374,4 +374,34 @@ router.get('/reporte-semanal', ventaController.getReporteSemanalPorFechas);
  */
 router.get('/reporte-ingresos', ventaController.getReporteIngresosPorFechas);
 
+/**
+ * @swagger
+ * /api/ventas/{id}:
+ * delete:
+ * tags: [Ventas]
+ * summary: Eliminar una venta y restaurar stock al inventario
+ * description: Elimina la venta por su ID, borra sus detalles y suma las cantidades de productos de vuelta al inventario.
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: integer
+ * description: ID de la venta a eliminar
+ * responses:
+ * 200:
+ * description: Venta eliminada y stock restaurado con éxito
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * message:
+ * type: string
+ * 404:
+ * description: La venta no existe
+ * 500:
+ * description: Error interno al procesar la eliminación
+ */
+router.delete("/:id", ventaController.deleteVenta);
 module.exports = router;

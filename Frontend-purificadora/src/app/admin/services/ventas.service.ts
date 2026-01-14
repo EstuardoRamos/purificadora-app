@@ -75,4 +75,9 @@ export class VentasService {
 
     return this.http.get(url);
   }
+
+  eliminarVenta(idVenta: number) {
+    return this.http.delete(`${this.baseUrl}/ventas/${idVenta}`);
+  }
+  
 }

@@ -39,7 +39,7 @@ const DetalleVenta = sequelize.define("DetalleVenta", {
 });
 
 // Relaciones
-DetalleVenta.belongsTo(Venta, { foreignKey: "id_venta" });
+//DetalleVenta.belongsTo(Venta, { foreignKey: "id_venta" });
 DetalleVenta.belongsTo(Producto, { foreignKey: "id_producto" });
 
 module.exports = DetalleVenta;

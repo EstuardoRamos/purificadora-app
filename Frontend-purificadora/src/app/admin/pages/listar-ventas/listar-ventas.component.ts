@@ -116,4 +116,23 @@ export class ListarVentasComponent implements OnInit {
       return sum + total;
     }, 0);
   }
+
+
+  eliminarVenta(venta: Venta): void {
+    const mensaje = `¿Estás seguro de que deseas eliminar la venta #${venta}?\n\nEsta acción devolverá los productos al inventario y no se puede deshacer.`;
+    
+    if (confirm(mensaje)) {
+      this.ventasService.eliminarVenta(venta.id!).subscribe({
+        next: () => {
+          alert('Venta eliminada con éxito y stock restaurado.');
+          // Refrescamos la lista actual para que desaparezca la venta eliminada
+          this.filtrarPorFechas(); 
+        },
+        error: (err) => {
+          console.error('Error al eliminar la venta', err);
+          alert('No se pudo eliminar la venta: ' + (err.error?.error || err.message));
+        }
+      });
+    }
+  }
 }

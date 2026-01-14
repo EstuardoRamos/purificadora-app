@@ -3,6 +3,7 @@ const { sequelize } = require("../config/database");
 const Usuario = require("./usuario");
 const Cliente = require("./cliente");
 const MetodoPago = require("./metodoPago"); // Importa el modelo de métodos de pago
+const DetalleVenta = require("./detalleVenta");
 
 const Venta = sequelize.define("Venta", {
     id: {
@@ -59,5 +60,6 @@ const Venta = sequelize.define("Venta", {
 Venta.belongsTo(Cliente, { foreignKey: "id_cliente" });
 Venta.belongsTo(Usuario, { foreignKey: "id_usuario" });
 Venta.belongsTo(MetodoPago, { foreignKey: "id_metodo_pago" });
+Venta.hasMany(DetalleVenta, { foreignKey: "id_venta" });
 
 module.exports = Venta;

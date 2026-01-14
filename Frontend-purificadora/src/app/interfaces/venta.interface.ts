@@ -1,6 +1,7 @@
 import { Cliente } from './cliente.interface';
 import { Usuario } from './usuario.interface';
 export interface Venta{
+  id?: number;
   id_cliente: number;
   fecha_compra: Date;
   total: number;
