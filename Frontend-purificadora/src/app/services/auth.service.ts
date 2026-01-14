@@ -19,7 +19,7 @@ export class AuthService {
   login(payload: LoginRequest): Observable<LoginResponse> {
     const body = {
       correo: payload.correo,
-      contraseña: payload.contrasena,
+      contrasena: payload.contrasena,
     };
 
     return this.http
