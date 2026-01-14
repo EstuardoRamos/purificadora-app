@@ -350,6 +350,9 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
 
         const fechaDesde = new Date(desde);
         const fechaHasta = new Date(hasta);
+        // Ampliamos el rango de búsqueda para incluir las horas UTC del día siguiente
+        // (Ventas de las 20:00 GT son las 02:00 UTC del día siguiente)
+        fechaHasta.setDate(fechaHasta.getDate() + 1); 
         fechaHasta.setHours(23, 59, 59, 999);
 
         const ventas = await Venta.findAll({
@@ -367,15 +370,28 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
         });
 
         const resumen = {};
-        const ventaIdToFecha = {};
         let totalVentas = 0;
         let totalCredito = 0;
         let totalEntregas = 0;
 
         for (const venta of ventas) {
             const fechaPago = venta.fecha_pago ? new Date(venta.fecha_pago) : null;
-            const fechaVenta = fechaPago && !isNaN(fechaPago) ? fechaPago : new Date(venta.fecha);
+            let fechaVenta = fechaPago && !isNaN(fechaPago) ? fechaPago : new Date(venta.fecha);
+
+            // --- CORRECCIÓN ZONA HORARIA ---
+            // Restamos 6 horas (en milisegundos) para forzar la hora de Guatemala
+            // 6 horas * 60 min * 60 seg * 1000 ms
+            fechaVenta = new Date(fechaVenta.getTime() - (6 * 3600 * 1000));
+            // -------------------------------
+
+            // Filtro manual: Como ampliamos la consulta SQL un día extra para capturar UTC,
+            // ahora filtramos aquí para asegurar que la fecha YA AJUSTADA caiga en el rango solicitado por el usuario.
+            // Convertimos 'desde' y 'hasta' originales a strings para comparar
             const fechaStr = format(fechaVenta, "yyyy-MM-dd");
+            
+            // Si la fecha ajustada se sale del rango que pidió el usuario, la ignoramos
+            if (fechaStr < desde || fechaStr > hasta) continue;
+
             const diaNombre = format(fechaVenta, "EEEE", { locale: es });
 
             if (!resumen[fechaStr]) {
@@ -385,7 +401,7 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
                     ventas: 0,
                     credito: 0,
                     entrega_total: 0,
-                    garrafones_en_planta: 110,
+                    garrafones_en_planta: 110, // Dato estático según tu código
                 };
             }
 
@@ -414,7 +430,6 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
         return res.status(500).json({ error: "Error generando reporte semanal" });
     }
 };
-
 exports.getReporteIngresosPorFechas = async (req, res) => {
     try {
         const { desde, hasta } = req.query;
@@ -425,6 +440,8 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
 
         const fechaDesde = new Date(desde);
         const fechaHasta = new Date(hasta);
+        // Ampliamos búsqueda para no perder ventas nocturnas que en DB son del día siguiente
+        fechaHasta.setDate(fechaHasta.getDate() + 1);
         fechaHasta.setHours(23, 59, 59, 999);
 
         const ventas = await Venta.findAll({
@@ -455,9 +472,20 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
             }
 
             const fechaPago = venta.fecha_pago ? new Date(venta.fecha_pago) : null;
-            const pagoEnRango = fechaPago && fechaPago >= fechaDesde && fechaPago <= fechaHasta;
-            const fechaBase = pagoEnRango ? fechaPago : new Date(venta.fecha);
+            
+            // Lógica original conservada pero simplificada con el ajuste horario
+            let fechaBase = fechaPago ? fechaPago : new Date(venta.fecha);
+
+            // --- CORRECCIÓN ZONA HORARIA ---
+            // Restamos 6 horas para ajustar a Guatemala antes de decidir el día
+            fechaBase = new Date(fechaBase.getTime() - (6 * 3600 * 1000));
+            // -------------------------------
+
             const fechaStr = format(fechaBase, "yyyy-MM-dd");
+
+            // Validar que la fecha corregida esté dentro del rango original solicitado
+            if (fechaStr < desde || fechaStr > hasta) continue;
+
             const diaNombre = format(fechaBase, "EEEE", { locale: es });
 
             if (!resumen[fechaStr]) {
@@ -475,7 +503,7 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
             ventaIdToFecha[venta.id] = fechaStr;
 
             const monto = parseFloat(venta.total) || 0;
-            const esCredito = esVentaCredito(venta);
+            const esCredito = esVentaCredito(venta); // Usando tu función auxiliar existente
 
             if (esCredito) {
                 resumen[fechaStr].creditos += 1;
@@ -491,7 +519,9 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
             ingresoTotal += monto;
         }
 
-        const ventaIds = ventas.map((venta) => venta.id);
+        // Lógica de conteo de garrafones (DetalleVenta)
+        const ventaIds = Object.keys(ventaIdToFecha); // Solo ventas que pasaron el filtro
+        
         if (ventaIds.length > 0) {
             const detalles = await DetalleVenta.findAll({
                 where: {
@@ -525,7 +555,6 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
         return res.status(500).json({ error: "Error generando reporte de ingresos" });
     }
 };
-
 exports.deleteVenta = async (req, res) => {
     const { id } = req.params;
     const t = await sequelize.transaction();
