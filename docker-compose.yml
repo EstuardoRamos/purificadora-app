@@ -1,6 +1,7 @@
 services:
   db:
     image: mysql:8.0
+    restart: always
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -20,6 +21,7 @@ services:
 
   api:
     build: ./backend-purificadora
+    restart: always
     environment:
       PORT: 5001
       DB_HOST: db
@@ -35,6 +37,7 @@ services:
 
   frontend:
     build: ./Frontend-purificadora
+    restart: always
     depends_on:
       - api
     expose:
@@ -42,6 +45,7 @@ services:
 
   nginx:
     image: nginx:alpine
+    restart: always
     depends_on:
       - frontend
       - api
