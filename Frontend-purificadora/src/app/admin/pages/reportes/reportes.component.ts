@@ -77,62 +77,78 @@ export class ReportesComponent implements OnInit {
   }
 
   private obtenerReporte(): void {
-    if (!this.fechaDesde || !this.fechaHasta) {
-      return;
-    }
-
-    const desde = this.formatearFecha(this.fechaDesde);
-    const hasta = this.formatearFecha(this.fechaHasta);
-
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    forkJoin({
-      semanal: this.ventasService.getReporteSemanal(desde, hasta),
-      ingresos: this.ventasService.getReporteIngresos(desde, hasta),
-      gastos: this.gastosService.getReporteGastos(desde, hasta),
-    }).subscribe({
-      next: (data) => {
-        const respuestaSemanal = data.semanal as ReporteSemanalResponse;
-        const respuestaIngresos = data.ingresos as ReporteIngresosResponse;
-        const respuestaGastos = data.gastos;
-
-        this.reporteSemanal = this.ordenarPorFechaDesc(
-          Object.values(respuestaSemanal.resumen || {})
-        );
-        this.resumenTotales = respuestaSemanal.total || null;
-
-        const ingresosDias = Object.values(respuestaIngresos.resumen || {}).map(
-          (dia) => this.normalizarDiaIngreso(dia)
-        );
-        this.reporteIngresos = this.ordenarPorFechaDesc(ingresosDias);
-        this.totalesIngresos = this.normalizarTotalesIngreso(respuestaIngresos.totales);
-        const gastosProcesados = this.procesarGastos(respuestaGastos);
-        this.totalGastos = gastosProcesados.total;
-        this.gastosDetalle = gastosProcesados.gastos;
-        this.actualizarIngresoNeto();
-        this.actualizarResumenIngresos();
-        this.mostrarGastosDetalle = false;
-
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar los reportes', err);
-        this.errorMessage = 'No fue posible cargar los reportes. Intenta nuevamente.';
-        this.reporteSemanal = [];
-        this.resumenTotales = null;
-        this.reporteIngresos = [];
-        this.totalesIngresos = null;
-        this.totalGastos = 0;
-        this.gastosDetalle = [];
-        this.mostrarGastosDetalle = false;
-        this.ingresoNeto = 0;
-        this.totalGarrafonesVendidos = 0;
-        this.totalMontoVentas = 0;
-        this.isLoading = false;
-      },
-    });
+  if (!this.fechaDesde || !this.fechaHasta) {
+    return;
   }
+
+  // 1. Clonar y configurar INICIO a las 00:00:00
+  const fechaInicioReal = new Date(this.fechaDesde);
+  fechaInicioReal.setHours(0, 0, 0, 0);
+
+  // 2. Clonar y configurar FIN a las 23:59:59 (IGUAL QUE EN LISTAR VENTAS)
+  // Esto es vital: al pasarlo a ISO, si estás en Guatemala, esto generará
+  // la fecha del día siguiente en UTC, asegurando que cubra todo tu día local.
+  const fechaFinReal = new Date(this.fechaHasta);
+  fechaFinReal.setHours(23, 59, 59, 999);
+
+  // 3. Convertir a String ISO
+  const desde = fechaInicioReal.toISOString().split('T')[0];
+  const hasta = fechaFinReal.toISOString().split('T')[0];
+
+  console.log('Consultando fechas:', { desde, hasta }); // Para depurar
+
+  this.isLoading = true;
+  this.errorMessage = '';
+
+  forkJoin({
+    semanal: this.ventasService.getReporteSemanal(desde, hasta),
+    ingresos: this.ventasService.getReporteIngresos(desde, hasta),
+    gastos: this.gastosService.getReporteGastos(desde, hasta),
+  }).subscribe({
+    next: (data) => {
+      // PROCESAMIENTO SEMANAL
+      const respuestaSemanal = data.semanal as ReporteSemanalResponse;
+      // Validamos si viene como objeto (resumen) o array directo
+      let listaSemanal: any[] = [];
+      if (Array.isArray(respuestaSemanal)) {
+         listaSemanal = respuestaSemanal;
+      } else if (respuestaSemanal.resumen) {
+         listaSemanal = Object.values(respuestaSemanal.resumen);
+      }
+      this.reporteSemanal = this.ordenarPorFechaDesc(listaSemanal);
+      this.resumenTotales = respuestaSemanal.total || null;
+
+      // PROCESAMIENTO INGRESOS
+      const respuestaIngresos = data.ingresos as ReporteIngresosResponse;
+      let listaIngresos: any[] = [];
+      if (Array.isArray(respuestaIngresos)) {
+        listaIngresos = respuestaIngresos;
+      } else if (respuestaIngresos.resumen) {
+        listaIngresos = Object.values(respuestaIngresos.resumen);
+      }
+      
+      const ingresosDias = listaIngresos.map((dia) => this.normalizarDiaIngreso(dia));
+      this.reporteIngresos = this.ordenarPorFechaDesc(ingresosDias);
+      this.totalesIngresos = this.normalizarTotalesIngreso(respuestaIngresos.totales);
+
+      // PROCESAMIENTO GASTOS
+      const gastosProcesados = this.procesarGastos(data.gastos);
+      this.totalGastos = gastosProcesados.total;
+      this.gastosDetalle = gastosProcesados.gastos;
+
+      // ACTUALIZACIONES FINALES
+      this.actualizarIngresoNeto();
+      this.actualizarResumenIngresos();
+      this.mostrarGastosDetalle = false;
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar reportes', err);
+      this.errorMessage = 'No se encontraron datos o hubo un error.';
+      this.isLoading = false;
+    },
+  });
+}
 
   generarPDF(): void {
     const contenido = this.construirContenidoPDF();
@@ -383,12 +399,10 @@ export class ReportesComponent implements OnInit {
   }
 
   private formatearFecha(fecha: Date): string {
-  const año = fecha.getFullYear();
-  // Los meses en JS empiezan en 0, por eso sumamos 1
-  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-  const dia = fecha.getDate().toString().padStart(2, '0');
-  
-  return `${año}-${mes}-${dia}`;
+  const d = new Date(fecha);
+  // Listar ventas usa esta lógica para asegurar el día correcto al convertir a ISO
+  d.setHours(0, 0, 0, 0); 
+  return d.toISOString().split('T')[0];
 }
 
   private ordenarPorFechaDesc<T extends { fecha: string }>(items: T[]): T[] {
@@ -510,14 +524,17 @@ export class ReportesComponent implements OnInit {
 
   private obtenerRangoInicial(): { desde: Date; hasta: Date } {
   const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0); // Limpiar horas desde el inicio
+  hoy.setHours(0, 0, 0, 0);
 
   const inicio = new Date(hoy);
-  const diaSemana = hoy.getDay(); 
-  const diferencia = diaSemana === 0 ? 6 : diaSemana - 1; 
-  
+  const diaSemana = hoy.getDay();
+  const diferencia = diaSemana === 0 ? 6 : diaSemana - 1;
   inicio.setDate(hoy.getDate() - diferencia);
+  inicio.setHours(0, 0, 0, 0); // Asegurar medianoche
 
-  return { desde: inicio, hasta: hoy };
+  const fin = new Date(hoy);
+  fin.setHours(23, 59, 59, 999); // Asegurar final del día
+
+  return { desde: inicio, hasta: fin };
 }
 }
