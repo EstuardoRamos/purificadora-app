@@ -383,16 +383,20 @@ export class ReportesComponent implements OnInit {
   }
 
   private formatearFecha(fecha: Date): string {
-    return fecha.toISOString().split('T')[0];
-  }
+  const año = fecha.getFullYear();
+  // Los meses en JS empiezan en 0, por eso sumamos 1
+  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+  const dia = fecha.getDate().toString().padStart(2, '0');
+  
+  return `${año}-${mes}-${dia}`;
+}
 
   private ordenarPorFechaDesc<T extends { fecha: string }>(items: T[]): T[] {
-    return [...items].sort((a, b) => {
-      const fechaA = new Date(a.fecha).getTime();
-      const fechaB = new Date(b.fecha).getTime();
-      return fechaB - fechaA;
-    });
-  }
+  return [...items].sort((a, b) => {
+    // Comparación lexicográfica directa de strings '2025-01-13' funciona perfecto para orden descendente
+    return b.fecha.localeCompare(a.fecha);
+  });
+}
 
   private normalizarDiaIngreso(dia: any): ReporteIngresosDia {
     return {
@@ -505,16 +509,15 @@ export class ReportesComponent implements OnInit {
   }
 
   private obtenerRangoInicial(): { desde: Date; hasta: Date } {
-    const hoy = new Date();
-    const inicio = new Date(hoy);
-    const diaSemana = hoy.getDay(); // 0 = domingo
-    const diferencia = diaSemana === 0 ? 6 : diaSemana - 1; // iniciar en lunes
-    inicio.setDate(hoy.getDate() - diferencia);
-    inicio.setHours(0, 0, 0, 0);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0); // Limpiar horas desde el inicio
 
-    const fin = new Date(hoy);
-    fin.setHours(0, 0, 0, 0);
+  const inicio = new Date(hoy);
+  const diaSemana = hoy.getDay(); 
+  const diferencia = diaSemana === 0 ? 6 : diaSemana - 1; 
+  
+  inicio.setDate(hoy.getDate() - diferencia);
 
-    return { desde: inicio, hasta: fin };
-  }
+  return { desde: inicio, hasta: hoy };
+}
 }
