@@ -67,7 +67,13 @@ export class GastosComponent implements OnInit {
   }
 
   editarGasto(gasto: Gasto): void {
-    this.gastoActual = { ...gasto };
+    // Tomamos la parte de la fecha del string ISO directamente para evitar
+    // que la conversión de zona horaria del navegador cambie el día.
+    // Si viene '2023-10-27T06:00:00.000Z', tomamos '2023-10-27'.
+    const fechaFormateada = typeof gasto.fecha === 'string' ? gasto.fecha.split('T')[0] : '';
+
+    // Asignamos el gasto para editar, pero con la fecha ya formateada.
+    this.gastoActual = { ...gasto, fecha: fechaFormateada };
     this.editando = true;
     this.mostrarFormulario = true;
   }
@@ -187,15 +193,25 @@ export class GastosComponent implements OnInit {
   }
 
   private obtenerGastoVacio(): Gasto {
+    // Usar fecha local para evitar que toISOString() adelante el día si es tarde
+    const hoy = new Date();
+    const year = hoy.getFullYear();
+    const month = (hoy.getMonth() + 1).toString().padStart(2, '0');
+    const day = hoy.getDate().toString().padStart(2, '0');
+
     return {
       gasto: '',
-      fecha: new Date().toISOString().split('T')[0],
+      fecha: `${year}-${month}-${day}`,
       valor: 0,
       observacion: '',
     };
   }
 
   private formatearFechaFiltro(fecha: Date): string {
-    return fecha.toISOString().split('T')[0];
+    const d = new Date(fecha);
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

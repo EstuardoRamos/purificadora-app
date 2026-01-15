@@ -3,6 +3,14 @@ const { Op } = require('sequelize');
 
 exports.crearGasto = async (req, res) => {
     try {
+        // Ajuste de zona horaria para Guatemala (UTC-6)
+        // Forzamos que la fecha se guarde a las 06:00 UTC (00:00 Guatemala)
+        // Esto evita que al visualizarse se reste un día por la zona horaria
+        if (req.body.fecha) {
+            const fechaStr = typeof req.body.fecha === 'string' ? req.body.fecha.split('T')[0] : new Date(req.body.fecha).toISOString().split('T')[0];
+            req.body.fecha = new Date(`${fechaStr}T06:00:00.000Z`);
+        }
+
         const nuevo = await Gasto.create(req.body);
         res.status(201).json(nuevo);
     } catch (error) {
@@ -42,6 +50,11 @@ exports.actualizarGasto = async (req, res) => {
         const camposPermitidos = ['gasto', 'valor', 'fecha', 'observacion'];
         camposPermitidos.forEach((campo) => {
             if (req.body[campo] !== undefined) {
+                // Aplicar la misma corrección de fecha al actualizar
+                if (campo === 'fecha' && req.body.fecha) {
+                    const fechaStr = typeof req.body.fecha === 'string' ? req.body.fecha.split('T')[0] : new Date(req.body.fecha).toISOString().split('T')[0];
+                    req.body.fecha = new Date(`${fechaStr}T06:00:00.000Z`);
+                }
                 gasto[campo] = req.body[campo];
             }
         });
