@@ -366,6 +366,10 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
                     model: MetodoPago,
                     attributes: ["id", "metodo"],
                 },
+                {
+                    model: DetalleVenta,
+                    attributes: ["cantidad"],
+                },
             ],
         });
 
@@ -405,15 +409,19 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
                 };
             }
 
-            resumen[fechaStr].entrega_total += 1;
-            totalEntregas += 1;
+            // Calcular cantidad de productos en esta venta (garrafones)
+            const detalles = venta.DetalleVentas || venta.DetalleVenta || [];
+            const cantidadProductos = detalles.reduce((acc, item) => acc + (Number(item.cantidad) || 0), 0);
+
+            resumen[fechaStr].entrega_total += cantidadProductos;
+            totalEntregas += cantidadProductos;
 
             if (venta.estado_pago === "pendiente") {
-                resumen[fechaStr].credito += 1;
-                totalCredito += 1;
+                resumen[fechaStr].credito += cantidadProductos;
+                totalCredito += cantidadProductos;
             } else {
-                resumen[fechaStr].ventas += 1;
-                totalVentas += 1;
+                resumen[fechaStr].ventas += cantidadProductos;
+                totalVentas += cantidadProductos;
             }
         }
 
