@@ -7,6 +7,7 @@ const MetodoPago = require("../models/metodoPago");
 const { parseISO, format } = require('date-fns');
 const { es } = require('date-fns/locale');
 const { sequelize } = require("../config/database");
+const { Op, fn, col, literal } = require("sequelize");
 
 const CREDIT_PAYMENT_METHOD_ID = Number(process.env.CREDIT_PAYMENT_METHOD_ID || 2);
 
@@ -133,8 +134,19 @@ exports.getVentasByUsuario = async (req, res) => {
     const where = { id_usuario };
 
     if (desde && hasta) {
+        // Ajuste de Zona Horaria (Guatemala UTC-6)
+        // Inicio: 00:00 GT -> 06:00 UTC
+        // Usamos strings directos para evitar ambigüedades con la hora local del servidor
+        const startDate = new Date(`${desde}T06:00:00.000Z`);
+
+        // Fin: 23:59:59 GT -> 05:59:59 UTC del día siguiente
+        const endDate = new Date(hasta);
+        endDate.setDate(endDate.getDate() + 1);
+        const endDateStr = endDate.toISOString().split('T')[0];
+        const finalEndDate = new Date(`${endDateStr}T05:59:59.999Z`);
+
         where.fecha = {
-            [Op.between]: [new Date(`${desde} 00:00:00`), new Date(`${hasta} 23:59:59`)],
+            [Op.between]: [startDate, finalEndDate],
         };
     }
 
@@ -202,8 +214,6 @@ exports.getUltimaVentaByCliente = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-const { Op, fn, col, literal } = require("sequelize");
-
 
 exports.getVentasByFecha = async (req, res) => {
     const { fecha_inicio, fecha_fin } = req.query;
@@ -214,10 +224,19 @@ exports.getVentasByFecha = async (req, res) => {
             return res.status(400).json({ error: "Debe proporcionar ambas fechas: fecha_inicio y fecha_fin" });
         }
 
+        // Ajuste de Zona Horaria (Guatemala UTC-6)
+        // Forzamos el inicio a las 06:00 UTC (00:00 Guatemala)
+        const startDate = new Date(`${fecha_inicio}T06:00:00.000Z`);
+
+        const endDate = new Date(fecha_fin);
+        endDate.setDate(endDate.getDate() + 1);
+        const endDateStr = endDate.toISOString().split('T')[0];
+        const finalEndDate = new Date(`${endDateStr}T05:59:59.999Z`);
+
         // Construir la consulta con el rango de fechas
         const whereClause = {
             fecha: {
-                [Op.between]: [`${fecha_inicio} 00:00:00`, `${fecha_fin} 23:59:59`], // Asegurar rango completo del día
+                [Op.between]: [startDate, finalEndDate],
             },
         };
 
