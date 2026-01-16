@@ -369,15 +369,23 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
 
         const fechaDesde = new Date(desde);
         const fechaHasta = new Date(hasta);
-        // Ampliamos el rango de búsqueda para incluir las horas UTC del día siguiente
-        // (Ventas de las 20:00 GT son las 02:00 UTC del día siguiente)
-        fechaHasta.setDate(fechaHasta.getDate() + 1); 
-        fechaHasta.setHours(23, 59, 59, 999);
+
+        // Ajuste de Zona Horaria (Guatemala UTC-6)
+        // Forzamos el inicio a las 06:00 UTC (00:00 Guatemala)
+        const startDate = new Date(`${desde}T06:00:00.000Z`);
+
+        const endDate = new Date(hasta);
+        endDate.setDate(endDate.getDate() + 1);
+        const endDateStr = endDate.toISOString().split('T')[0];
+        const finalEndDate = new Date(`${endDateStr}T05:59:59.999Z`);
 
         const ventas = await Venta.findAll({
-            where: buildRangoFechasWhere(fechaDesde, fechaHasta),
+            where: {
+                fecha: {
+                    [Op.between]: [startDate, finalEndDate],
+                },
+            },
             order: [
-                ["fecha_pago", "ASC"],
                 ["fecha", "ASC"],
             ],
             include: [
@@ -398,18 +406,14 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
         let totalEntregas = 0;
 
         for (const venta of ventas) {
-            const fechaPago = venta.fecha_pago ? new Date(venta.fecha_pago) : null;
-            let fechaVenta = fechaPago && !isNaN(fechaPago) ? fechaPago : new Date(venta.fecha);
+            // Usamos siempre la fecha de creación para el reporte semanal (entregas)
+            let fechaVenta = new Date(venta.fecha);
 
             // --- CORRECCIÓN ZONA HORARIA ---
             // Restamos 6 horas (en milisegundos) para forzar la hora de Guatemala
-            // 6 horas * 60 min * 60 seg * 1000 ms
             fechaVenta = new Date(fechaVenta.getTime() - (6 * 3600 * 1000));
             // -------------------------------
 
-            // Filtro manual: Como ampliamos la consulta SQL un día extra para capturar UTC,
-            // ahora filtramos aquí para asegurar que la fecha YA AJUSTADA caiga en el rango solicitado por el usuario.
-            // Convertimos 'desde' y 'hasta' originales a strings para comparar
             const fechaStr = format(fechaVenta, "yyyy-MM-dd");
             
             // Si la fecha ajustada se sale del rango que pidió el usuario, la ignoramos
@@ -435,7 +439,8 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
             resumen[fechaStr].entrega_total += cantidadProductos;
             totalEntregas += cantidadProductos;
 
-            if (venta.estado_pago === "pendiente") {
+            // Clasificamos por tipo de venta (Crédito vs Contado) independientemente de si ya se pagó
+            if (esVentaCredito(venta)) {
                 resumen[fechaStr].credito += cantidadProductos;
                 totalCredito += cantidadProductos;
             } else {
