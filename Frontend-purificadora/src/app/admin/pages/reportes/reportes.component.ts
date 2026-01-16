@@ -28,7 +28,8 @@ export class ReportesComponent implements OnInit {
   displayedIngresosColumns: string[] = [
     'dia',
     'fecha',
-    'vendidos',
+    'garrafones_vendidos',
+    'garrafones_pagados',
     'ventas',
     'creditos',
     'ingreso',
@@ -275,11 +276,12 @@ export class ReportesComponent implements OnInit {
 
     const filasIngresos = this.reporteIngresos
       .map(
-        (item) => `
+        (item: any) => `
           <tr>
             <td>${item.dia}</td>
             <td>${item.fecha}</td>
-            <td>${item.vendidos}</td>
+            <td>${item.garrafones_vendidos}</td>
+            <td>${item.garrafones_pagados}</td>
             <td>${this.formatearMoneda(item.ventas)}</td>
             <td>${this.formatearMoneda(item.creditos_monto ?? item.creditos)}</td>
             <td>${this.formatearMoneda(item.ingreso)}</td>
@@ -298,6 +300,7 @@ export class ReportesComponent implements OnInit {
             <th>Día</th>
             <th>Fecha</th>
             <th>Garrafones Vendidos</th>
+            <th>Garrafones Pagados</th>
             <th>Ventas</th>
             <th>Créditos</th>
             <th>Ingreso Neto</th>
@@ -414,6 +417,8 @@ export class ReportesComponent implements OnInit {
     return {
       ...dia,
       vendidos: this.aNumero(dia.vendidos),
+      garrafones_vendidos: this.aNumero(dia.garrafones_vendidos),
+      garrafones_pagados: this.aNumero(dia.garrafones_pagados),
       ventas: this.aNumero(dia.ventas),
       creditos: this.aNumero(dia.creditos),
       creditos_monto:

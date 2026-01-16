@@ -409,11 +409,6 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
             // Usamos siempre la fecha de creación para el reporte semanal (entregas)
             let fechaVenta = new Date(venta.fecha);
 
-            // --- CORRECCIÓN ZONA HORARIA ---
-            // Restamos 6 horas (en milisegundos) para forzar la hora de Guatemala
-            fechaVenta = new Date(fechaVenta.getTime() - (6 * 3600 * 1000));
-            // -------------------------------
-
             const fechaStr = format(fechaVenta, "yyyy-MM-dd");
             
             // Si la fecha ajustada se sale del rango que pidió el usuario, la ignoramos
@@ -492,6 +487,7 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
 
         const resumen = {};
         const ventaIdToFecha = {};
+        const ventaIdEsCredito = {};
 
         let totalVentasPagadas = 0;
         let totalCreditosCobrados = 0;
@@ -508,11 +504,6 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
             // Lógica original conservada pero simplificada con el ajuste horario
             let fechaBase = fechaPago ? fechaPago : new Date(venta.fecha);
 
-            // --- CORRECCIÓN ZONA HORARIA ---
-            // Restamos 6 horas para ajustar a Guatemala antes de decidir el día
-            fechaBase = new Date(fechaBase.getTime() - (6 * 3600 * 1000));
-            // -------------------------------
-
             const fechaStr = format(fechaBase, "yyyy-MM-dd");
 
             // Validar que la fecha corregida esté dentro del rango original solicitado
@@ -525,6 +516,8 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
                     dia: diaNombre,
                     fecha: fechaStr,
                     vendidos: 0,
+                    garrafones_vendidos: 0,
+                    garrafones_pagados: 0,
                     ventas: 0,
                     creditos: 0,
                     creditos_monto: 0,
@@ -532,10 +525,11 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
                 };
             }
 
+            const esCredito = esVentaCredito(venta); // Usando tu función auxiliar existente
             ventaIdToFecha[venta.id] = fechaStr;
+            ventaIdEsCredito[venta.id] = esCredito;
 
             const monto = parseFloat(venta.total) || 0;
-            const esCredito = esVentaCredito(venta); // Usando tu función auxiliar existente
 
             if (esCredito) {
                 resumen[fechaStr].creditos += 1;
@@ -559,7 +553,7 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
                 where: {
                     id_venta: ventaIds,
                 },
-                attributes: ["id_venta", [sequelize.fn("SUM", sequelize.col("cantidad")), "total_cantidad"]],
+                attributes: ["id_venta", [fn("SUM", col("cantidad")), "total_cantidad"]],
                 group: ["id_venta"],
                 raw: true,
             });
@@ -569,7 +563,14 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
                 if (!fechaStr || !resumen[fechaStr]) {
                     return;
                 }
-                resumen[fechaStr].vendidos += Number(total_cantidad) || 0;
+                const cantidad = Number(total_cantidad) || 0;
+                resumen[fechaStr].vendidos += cantidad;
+
+                if (ventaIdEsCredito[id_venta]) {
+                    resumen[fechaStr].garrafones_pagados += cantidad;
+                } else {
+                    resumen[fechaStr].garrafones_vendidos += cantidad;
+                }
             });
         }
 
