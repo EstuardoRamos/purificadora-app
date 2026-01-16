@@ -81,19 +81,9 @@ export class ReportesComponent implements OnInit {
     return;
   }
 
-  // 1. Clonar y configurar INICIO a las 00:00:00
-  const fechaInicioReal = new Date(this.fechaDesde);
-  fechaInicioReal.setHours(0, 0, 0, 0);
-
-  // 2. Clonar y configurar FIN a las 23:59:59 (IGUAL QUE EN LISTAR VENTAS)
-  // Esto es vital: al pasarlo a ISO, si estás en Guatemala, esto generará
-  // la fecha del día siguiente en UTC, asegurando que cubra todo tu día local.
-  const fechaFinReal = new Date(this.fechaHasta);
-  fechaFinReal.setHours(23, 59, 59, 999);
-
-  // 3. Convertir a String ISO
-  const desde = fechaInicioReal.toISOString().split('T')[0];
-  const hasta = fechaFinReal.toISOString().split('T')[0];
+    // Usamos la fecha local para evitar que toISOString() adelante el día si es tarde (por la zona horaria)
+    const desde = this.formatearFechaEnvio(this.fechaDesde);
+    const hasta = this.formatearFechaEnvio(this.fechaHasta);
 
   console.log('Consultando fechas:', { desde, hasta }); // Para depurar
 
@@ -404,6 +394,14 @@ export class ReportesComponent implements OnInit {
   d.setHours(0, 0, 0, 0); 
   return d.toISOString().split('T')[0];
 }
+
+  private formatearFechaEnvio(fecha: Date | string): string {
+    const d = new Date(fecha);
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   private ordenarPorFechaDesc<T extends { fecha: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => {
