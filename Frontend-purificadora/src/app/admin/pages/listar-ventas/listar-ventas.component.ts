@@ -9,7 +9,7 @@ import { Venta } from '../../../interfaces/venta.interface';
 })
 export class ListarVentasComponent implements OnInit {
   ventas: Venta[] = [];
-  displayedColumns: string[] = ['id', 'cliente', 'usuario', 'metodoPago', 'total', 'fecha', 'acciones'];
+  displayedColumns: string[] = ['id', 'cliente', 'usuario', 'metodoPago', 'total', 'fecha', 'fecha_pago', 'acciones'];
 
   // Filtros de fecha
   fechaInicio: Date | null = null;
