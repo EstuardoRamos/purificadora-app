@@ -1,92 +1,87 @@
-/* General */
-.ventas-table {
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-.mat-form-field {
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-/* Tarjeta Principal */
-mat-card {
-  background-color: #1e1e1e;
-  color: #ffffff;
-  margin-bottom: 16px;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.card-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 16px;
-  color: #1976d2;
-}
-
-/* Tabla */
-table {
-  width: 100%;
-  border-spacing: 0;
-}
-
-th {
-  text-align: left;
-  background-color: #333333;
-  color: #ffffff;
-}
-
-td {
-  color: #cccccc;
-}
-
-button {
-  min-width: 100px;
-  margin-right: 8px;
-}
-
-
 .filtros {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-  align-items: center;
   flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .botones-filtros {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.table-container {
+  overflow: auto;
 }
 
 .ventas-table {
   width: 100%;
 }
 
-.total-ventas {
-  margin-bottom: 12px;
-  font-weight: 600;
+/* Estilos para la fila expandible */
+.venta-row td {
+  border-bottom-width: 0;
 }
 
-.metodo-filtro {
-  min-width: 160px;
+.detail-row {
+  height: 0;
+  border-bottom: none;
 }
 
-mat-card {
-  margin-bottom: 16px;
+/* Asegura que la celda de detalle no tenga padding cuando está colapsada */
+.detail-row td {
+  padding: 0 !important; /* Elimina el padding interno */
+  border-bottom: none; /* Oculta el borde inferior de la celda colapsada */
+}
+
+.venta-row.expanded-row {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.venta-detail {
+  overflow: hidden;
+  display: flex;
+  background-color: #333; /* Fondo oscuro */
   padding: 16px;
-  background-color: #1e1e1e;
-  color: #ffffff;
-  border-radius: 8px;
+  color: #f0f0f0; /* Color de texto claro para contraste */
 }
 
-.card-title {
-  text-align: center;
-  color: #1976d2;
-  font-size: 1.5rem;
-  font-weight: bold;
+.venta-detail strong {
+  color: #ffffff; /* Asegura que el texto en negrita sea blanco puro */
+}
+
+.detail-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: center;
+}
+
+.detail-actions {
+  grid-column: -1; /* Alinea el botón a la derecha */
+  justify-self: end;
+}
+
+/* Chip de estado */
+.status-chip {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: white;
+}
+
+.status-chip.pagado {
+  background-color: #4caf50; /* Verde */
+}
+
+.status-chip.pendiente {
+  background-color: #f44336; /* Rojo */
+}
+
+/* Hacer la fila clickeable */
+.venta-row {
+  cursor: pointer;
 }

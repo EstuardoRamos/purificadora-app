@@ -3,12 +3,18 @@ const jwt = require("jsonwebtoken");
 const Usuario = require("../models/usuario");
 
 exports.createUsuario = async (req, res) => {
-    const { nombre, correo, telefono, tipo, contraseña, fecha_de_nacimiento, activo = true } = req.body;
+    const { nombre, correo, telefono, tipo, contraseña, contrasena, fecha_de_nacimiento, activo = true } = req.body;
 
     try {
+        // Aceptar contraseña con o sin ñ
+        const password = contrasena || contraseña;
+        if (!password) {
+            return res.status(400).json({ error: "La contraseña es obligatoria" });
+        }
+
         // Encriptar la contraseña antes de guardar el usuario
         const saltRounds = 10; // Puedes ajustar las rondas de sal para mayor seguridad
-        const hashedPassword = await bcrypt.hash(contraseña, saltRounds);
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // Crear el usuario con la contraseña encriptada
         const usuario = await Usuario.create({
@@ -16,7 +22,7 @@ exports.createUsuario = async (req, res) => {
             correo,
             telefono,
             tipo,
-            contraseña: hashedPassword, // Guardar la contraseña encriptada
+            contrasena: hashedPassword, // Usamos 'contrasena' (sin ñ) para coincidir con el modelo y el login
             fecha_de_nacimiento,
             activo,
         });
@@ -136,7 +142,7 @@ exports.changePassword = async (req, res) => {
         }
 
         // Verificar que la contraseña actual coincida con la almacenada
-        const isMatch = await bcrypt.compare(currentPassword, usuario.contraseña);
+        const isMatch = await bcrypt.compare(currentPassword, usuario.contrasena);
         if (!isMatch) {
             return res.status(401).json({ error: "La contraseña actual es incorrecta" });
         }
@@ -146,7 +152,7 @@ exports.changePassword = async (req, res) => {
         const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
         // Actualizar la contraseña en la base de datos
-        await usuario.update({ contraseña: hashedNewPassword });
+        await usuario.update({ contrasena: hashedNewPassword });
 
         res.json({ message: "Contraseña actualizada exitosamente" });
     } catch (error) {
@@ -168,7 +174,7 @@ exports.forgotPassword = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(nuevaContraseña, 10);
-        await usuario.update({ contraseña: hashedPassword });
+        await usuario.update({ contrasena: hashedPassword });
 
         res.json({ message: "Contraseña actualizada. Ahora puede iniciar sesión con la nueva contraseña." });
     } catch (error) {

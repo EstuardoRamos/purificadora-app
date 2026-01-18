@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { VentasService } from '../../services/ventas.service';
 import { Venta } from '../../../interfaces/venta.interface';
 
@@ -6,10 +7,19 @@ import { Venta } from '../../../interfaces/venta.interface';
   selector: 'app-listar-ventas',
   templateUrl: './listar-ventas.component.html',
   styleUrls: ['./listar-ventas.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0', visibility: 'hidden' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class ListarVentasComponent implements OnInit {
   ventas: Venta[] = [];
-  displayedColumns: string[] = ['id', 'cliente', 'usuario', 'metodoPago', 'total', 'fecha', 'fecha_pago', 'acciones'];
+  // Columnas para la vista principal minimalista
+  displayedColumns: string[] = ['id', 'cliente', 'metodoPago', 'total', 'fecha', 'estado_pago', 'acciones'];
+  expandedElement: Venta | null = null;
 
   // Filtros de fecha
   fechaInicio: Date | null = null;
@@ -81,11 +91,6 @@ export class ListarVentasComponent implements OnInit {
         console.error('Error al filtrar las ventas', err);
       },
     });
-  }
-
-  // Ver detalle de una venta
-  verDetalle(venta: Venta): void {
-    alert(`Detalles de la venta ID: ${venta}`);
   }
 
   onMetodoPagoChange(): void {
