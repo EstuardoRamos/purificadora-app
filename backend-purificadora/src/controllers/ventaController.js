@@ -38,6 +38,7 @@ const esVentaCredito = (venta) => {
 
 exports.createVenta = async (req, res) => {
     const { id_cliente, id_usuario, id_metodo_pago, productos } = req.body;
+    const t = await sequelize.transaction();
 
     try {
         // Calcular el total de la venta
@@ -57,21 +58,22 @@ exports.createVenta = async (req, res) => {
             total,
             estado_pago: esCredito ? "pendiente" : "pagado",
             fecha_pago: esCredito ? null : fechaActual,
-        });
+        }, { transaction: t });
 
         // Registrar los detalles de la venta
         for (const producto of productos) {
             const { id_producto, cantidad, precio } = producto;
 
             // Verificar el inventario
-            const inventario = await Inventario.findOne({ where: { id_producto } });
+            const inventario = await Inventario.findOne({ where: { id_producto }, transaction: t });
             if (!inventario || inventario.cantidad < cantidad) {
+                await t.rollback();
                 return res.status(400).json({ error: `Inventario insuficiente para el producto ID ${id_producto}` });
             }
 
             // Reducir el inventario
             inventario.cantidad -= cantidad;
-            await inventario.save();
+            await inventario.save({ transaction: t });
 
             // Crear detalle de la venta
             await DetalleVenta.create({
@@ -79,20 +81,22 @@ exports.createVenta = async (req, res) => {
                 id_producto,
                 cantidad,
                 subtotal: cantidad * precio,
-            });
+            }, { transaction: t });
         }
 
         // Si el método de pago es crédito, actualizar el cliente
         if (esCredito) { // Asumiendo que el ID 3 es "Crédito"
-            const cliente = await Cliente.findByPk(id_cliente);
+            const cliente = await Cliente.findByPk(id_cliente, { transaction: t });
             if (cliente) {
                 cliente.credito = true;
-                await cliente.save();
+                await cliente.save({ transaction: t });
             }
         }
 
+        await t.commit();
         res.status(201).json({ message: "Venta registrada con éxito", venta });
     } catch (error) {
+        await t.rollback();
         res.status(500).json({ error: error.message });
     }
 };
