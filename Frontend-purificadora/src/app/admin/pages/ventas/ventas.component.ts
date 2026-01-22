@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClientesService } from '../../services/clientes.service';
 import { ProductosService } from '../../services/productos.service';
 import { VentasService } from '../../services/ventas.service';
@@ -14,6 +15,37 @@ import { Subscription } from 'rxjs';
   selector: 'app-ventas',
   templateUrl: './ventas.component.html',
   styleUrls: ['./ventas.component.css'],
+  styles: [`
+    /* Estilos para el contenedor del SnackBar (versiones nuevas y antiguas) */
+    ::ng-deep .snackbar-success,
+    ::ng-deep .snackbar-success .mdc-snackbar__surface {
+      background-color: #4caf50 !important; /* Verde */
+      color: white !important;
+      --mdc-snackbar-container-color: #4caf50;
+      --mdc-snackbar-supporting-text-color: white;
+    }
+    /* Color del texto y botones para éxito */
+    ::ng-deep .snackbar-success .mat-simple-snackbar-action,
+    ::ng-deep .snackbar-success .mat-mdc-snack-bar-action,
+    ::ng-deep .snackbar-success .mdc-snackbar__label {
+      color: white !important;
+    }
+
+    /* Estilos para el contenedor de Error */
+    ::ng-deep .snackbar-error,
+    ::ng-deep .snackbar-error .mdc-snackbar__surface {
+      background-color: #f44336 !important; /* Rojo */
+      color: white !important;
+      --mdc-snackbar-container-color: #f44336;
+      --mdc-snackbar-supporting-text-color: white;
+    }
+    /* Color del texto y botones para error */
+    ::ng-deep .snackbar-error .mat-simple-snackbar-action,
+    ::ng-deep .snackbar-error .mat-mdc-snack-bar-action,
+    ::ng-deep .snackbar-error .mdc-snackbar__label {
+      color: white !important;
+    }
+  `]
 })
 export class VentasComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];
@@ -45,7 +77,8 @@ export class VentasComponent implements OnInit, OnDestroy {
     private clientesService: ClientesService,
     private productosService: ProductosService,
     private ventasService: VentasService,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -135,7 +168,7 @@ export class VentasComponent implements OnInit, OnDestroy {
       this.productosVenta = this.construirDetalleVenta();
       this.mostrarConfirmacion = true;
     } else {
-      alert('Agrega productos y selecciona un cliente antes de guardar la venta.');
+      this.mostrarNotificacion('Agrega productos y selecciona un cliente antes de guardar la venta.', 'advertencia');
     }
   }
 
@@ -144,7 +177,7 @@ export class VentasComponent implements OnInit, OnDestroy {
       return;
     }
     if (!this.venta.id_usuario) {
-      alert('No se pudo determinar el usuario que registra la venta.');
+      this.mostrarNotificacion('No se pudo determinar el usuario que registra la venta.', 'error');
       return;
     }
 
@@ -159,9 +192,7 @@ export class VentasComponent implements OnInit, OnDestroy {
 
     this.ventasService.registrarVenta(ventaCompleta).subscribe({
       next: () => {
-        alert(
-          `Venta registrada exitosamente para ${this.clienteSeleccionado!.nombre}`
-        );
+        this.mostrarNotificacion(`Venta registrada exitosamente para ${this.clienteSeleccionado!.nombre}`, 'exito');
         const fechaActual = new Date().toISOString();
         this.clienteSeleccionado!.estado = 'abastecido'; // Actualizar estado local
         this.clienteSeleccionado!.ultimaCompra = this.formatearFechaCorta(fechaActual);
@@ -180,7 +211,8 @@ export class VentasComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al registrar la venta', err.error);
-        alert('Error al registrar la venta: ' + err.error.error);
+        const mensajeError = err.error?.error || 'Ocurrió un error desconocido al registrar la venta.';
+        this.mostrarNotificacion('Error al registrar la venta: ' + mensajeError, 'error');
       },
     });
   }
@@ -275,6 +307,18 @@ export class VentasComponent implements OnInit, OnDestroy {
 
     this.usuarioSub = this.authService.getUsuario$().subscribe((user) => {
       this.venta.id_usuario = user?.id || 0;
+    });
+  }
+
+  private mostrarNotificacion(mensaje: string, tipo: 'exito' | 'error' | 'advertencia'): void {
+    // Si es error usa la clase roja, de lo contrario (éxito o advertencia) usa la verde
+    const clase = tipo === 'error' ? 'snackbar-error' : 'snackbar-success';
+
+    this.snackBar.open(mensaje, 'Cerrar', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: [clase]
     });
   }
 }

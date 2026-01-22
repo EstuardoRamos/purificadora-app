@@ -42,35 +42,25 @@ export class RegistroInventarioComponent {
   }
 
   guardarCambio() {
-    console.log(this.accion);
-    console.log(this.cantidadCambio);
-
-
     if (!this.accion || this.cantidadCambio <= 0) {
       alert('Por favor selecciona una acción y una cantidad válida.');
       return;
     }
 
-    if (this.accion === 'incrementar') {
-      this.productoSeleccionado!.cantidad! += this.cantidadCambio;
-      this.cantidadCambio=+this.cantidadCambio
-    } else if (this.accion === 'disminuir') {
-      this.cantidadCambio=(-this.cantidadCambio);
-      if (this.productoSeleccionado!.cantidad! - this.cantidadCambio < 0) {
-        console.log('hola');
+    let cambio = this.cantidadCambio;
 
-        this.cantidadCambio=-Number(this.cantidadCambio);
+    if (this.accion === 'disminuir') {
+      if (this.productoSeleccionado!.cantidad! < cambio) {
         alert('No puedes reducir más allá de 0.');
         return;
       }
-      this.productoSeleccionado!.cantidad! -= this.cantidadCambio;
+      cambio = -cambio; // Convertir a negativo para la resta
     }
 
-    // Actualizamos el estado basado en la cantidad
-   // this.productoSeleccionado!.estado =
-      this.productoSeleccionado!.cantidad! > 10 ? 'Disponible' : 'Poca Existencia';
+    // Actualizamos la cantidad localmente
+    this.productoSeleccionado!.cantidad! += cambio;
 
-    this.actualizarInventario(this.productoSeleccionado!, this.cantidadCambio);
+    this.actualizarInventario(this.productoSeleccionado!, cambio);
     this.cancelarFormulario();
   }
 

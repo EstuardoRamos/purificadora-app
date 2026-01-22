@@ -29,6 +29,7 @@ const RegistroInventario = sequelize.define("RegistroInventario", {
     id_usuario: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'id_empleado', // Mapeamos la propiedad 'id_usuario' a la columna 'id_empleado' en la BD
         references: {
             model: Usuario,
             key: "id",
