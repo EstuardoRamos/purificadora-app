@@ -4,7 +4,14 @@ const RegistroInventario = require("../models/registroInventario");
 // Obtener el inventario de todos los productos
 exports.getAllInventario = async (req, res) => {
     try {
-        const inventario = await Inventario.findAll({ include: "Producto" });
+        // Usamos required: true para hacer un INNER JOIN.
+        // Esto filtra automáticamente los registros de inventario que no tienen un producto válido asociado (huérfanos).
+        const inventario = await Inventario.findAll({ 
+            include: [{
+                association: "Producto",
+                required: true 
+            }] 
+        });
         res.json(inventario);
     } catch (error) {
         res.status(500).json({ error: error.message });
