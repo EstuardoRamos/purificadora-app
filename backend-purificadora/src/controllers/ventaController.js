@@ -412,13 +412,16 @@ exports.getReporteSemanalPorFechas = async (req, res) => {
         for (const venta of ventas) {
             // Usamos siempre la fecha de creación para el reporte semanal (entregas)
             let fechaVenta = new Date(venta.fecha);
-
-            const fechaStr = format(fechaVenta, "yyyy-MM-dd");
+            
+            // Ajuste manual a UTC-6 (Guatemala) para evitar que el servidor en la nube (UTC) adelante el día
+            const fechaGT = new Date(fechaVenta.getTime() - (6 * 60 * 60 * 1000));
+            const fechaStr = fechaGT.toISOString().split('T')[0];
             
             // Si la fecha ajustada se sale del rango que pidió el usuario, la ignoramos
             if (fechaStr < desde || fechaStr > hasta) continue;
 
-            const diaNombre = format(fechaVenta, "EEEE", { locale: es });
+            // Usamos una fecha segura al mediodía basada en el string corregido para obtener el nombre del día
+            const diaNombre = format(new Date(`${fechaStr}T12:00:00`), "EEEE", { locale: es });
 
             if (!resumen[fechaStr]) {
                 resumen[fechaStr] = {
@@ -507,13 +510,16 @@ exports.getReporteIngresosPorFechas = async (req, res) => {
             
             // Lógica original conservada pero simplificada con el ajuste horario
             let fechaBase = fechaPago ? fechaPago : new Date(venta.fecha);
-
-            const fechaStr = format(fechaBase, "yyyy-MM-dd");
+            
+            // Ajuste manual a UTC-6 (Guatemala)
+            const fechaGT = new Date(fechaBase.getTime() - (6 * 60 * 60 * 1000));
+            const fechaStr = fechaGT.toISOString().split('T')[0];
 
             // Validar que la fecha corregida esté dentro del rango original solicitado
             if (fechaStr < desde || fechaStr > hasta) continue;
 
-            const diaNombre = format(fechaBase, "EEEE", { locale: es });
+            // Usamos una fecha segura al mediodía basada en el string corregido para obtener el nombre del día
+            const diaNombre = format(new Date(`${fechaStr}T12:00:00`), "EEEE", { locale: es });
 
             if (!resumen[fechaStr]) {
                 resumen[fechaStr] = {
