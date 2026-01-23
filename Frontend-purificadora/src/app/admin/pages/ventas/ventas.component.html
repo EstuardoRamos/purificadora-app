@@ -8,7 +8,7 @@
       <mat-select 
         name="dia_filtro"
         [(ngModel)]="diaSeleccionado"
-        (selectionChange)="filtrarClientesPorDia()"
+        (selectionChange)="aplicarFiltros()"
         [ngModelOptions]="{standalone: true}"
       >
         <mat-option value="todos"> Todos los días</mat-option>
@@ -20,6 +20,18 @@
         <mat-option value="sábado">Sábado</mat-option>
         <mat-option value="domingo">Domingo</mat-option>
       </mat-select>
+    </mat-form-field>
+
+    <!-- Buscador por Nombre -->
+    <mat-form-field appearance="outline" class="filtro-busqueda">
+      <mat-label>Buscar cliente</mat-label>
+      <input 
+        matInput 
+        [(ngModel)]="textoBusqueda" 
+        (ngModelChange)="aplicarFiltros()" 
+        placeholder="Nombre..."
+      >
+      <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
     <div class="filtro-info">

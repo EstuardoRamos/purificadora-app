@@ -1,18 +1,30 @@
 <mat-card class="crud-card">
   <mat-card-title class="card-title">Gestión de Aldeas</mat-card-title>
-
+  <!-- Botón Nueva Aldea -->
+    <button
+      mat-raised-button
+      color="accent"
+      class="nueva-aldea-btn"
+      (click)="abrirFormulario()"
+    >
+      Nueva Aldea
+    </button>
   <!-- Tabla de Aldeas -->
   <div *ngIf="!mostrarFormulario" class="table-container">
-    <table mat-table [dataSource]="aldeas" class="mat-elevation-z8 aldeas-table">
+    <table
+      mat-table
+      [dataSource]="aldeas"
+      class="mat-elevation-z8 aldeas-table"
+    >
       <!-- Columna: Nombre -->
       <ng-container matColumnDef="nombre">
-        <th mat-header-cell *matHeaderCellDef> Nombre </th>
-        <td mat-cell *matCellDef="let aldea"> {{ aldea.nombre }} </td>
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let aldea">{{ aldea.nombre }}</td>
       </ng-container>
 
       <!-- Columna: Acciones -->
       <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
         <td mat-cell *matCellDef="let aldea">
           <button mat-icon-button color="primary" (click)="editarAldea(aldea)">
             <mat-icon>edit</mat-icon>
@@ -25,33 +37,37 @@
 
       <!-- Cabecera y Filas -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
 
-    <!-- Botón Nueva Aldea -->
-  <button mat-raised-button color="accent" class="nueva-aldea-btn" (click)="abrirFormulario()">
-    Nueva Aldea
-  </button>
+    
   </div>
-
-  
 
   <!-- Formulario de Crear/Editar Aldea -->
   <mat-card *ngIf="mostrarFormulario" class="form-card">
     <mat-card-title class="card-title">
-      {{ aldeaSeleccionada ? 'Editar Aldea' : 'Nueva Aldea' }}
+      {{ aldeaSeleccionada ? "Editar Aldea" : "Nueva Aldea" }}
     </mat-card-title>
     <form>
       <!-- Nombre -->
       <mat-form-field appearance="fill">
         <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="aldeaFormulario.nombre" name="nombre" required />
+        <input
+          matInput
+          [(ngModel)]="aldeaFormulario.nombre"
+          name="nombre"
+          required
+        />
       </mat-form-field>
 
       <!-- Botones -->
       <div class="form-buttons">
-        <button mat-raised-button color="primary" (click)="guardarAldea()">Guardar</button>
-        <button mat-raised-button color="warn" (click)="cancelarFormulario()">Cancelar</button>
+        <button mat-raised-button color="primary" (click)="guardarAldea()">
+          Guardar
+        </button>
+        <button mat-raised-button color="warn" (click)="cancelarFormulario()">
+          Cancelar
+        </button>
       </div>
     </form>
   </mat-card>

@@ -63,6 +63,7 @@ export class VentasComponent implements OnInit, OnDestroy {
   diaSeleccionado: string = '';
   diaActualNombre: string = '';
   diasSemana: string[] = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  textoBusqueda: string = ''; // Variable para el buscador
 
   // Detalles de la venta
   venta: Venta = {
@@ -104,22 +105,33 @@ export class VentasComponent implements OnInit, OnDestroy {
     this.clientesService.getClientes().subscribe({
       next: (data) => {
         this.clientes = data as Cliente[];
-        this.filtrarClientesPorDia();
+        this.aplicarFiltros(); // Usamos la nueva función unificada
         this.cargarUltimasCompras();
       },
       error: (err) => console.error('Error al cargar los clientes', err),
     });
   }
 
-  // Filtrar clientes por día de la semana
-  filtrarClientesPorDia(): void {
-    if (this.diaSeleccionado === 'todos') {
-      this.clientesFiltrados = [...this.clientes];
-    } else {
-      this.clientesFiltrados = this.clientes.filter(
+  // Filtro unificado: Día + Nombre
+  aplicarFiltros(): void {
+    let filtrados = [...this.clientes];
+
+    // 1. Filtrar por día
+    if (this.diaSeleccionado !== 'todos') {
+      filtrados = filtrados.filter(
         (cliente) => cliente.ruta.toLowerCase() === this.diaSeleccionado.toLowerCase()
       );
     }
+
+    // 2. Filtrar por nombre (buscador)
+    if (this.textoBusqueda.trim()) {
+      const termino = this.textoBusqueda.toLowerCase().trim();
+      filtrados = filtrados.filter((cliente) =>
+        cliente.nombre.toLowerCase().includes(termino)
+      );
+    }
+
+    this.clientesFiltrados = filtrados;
   }
 
   // Cargar productos disponibles
