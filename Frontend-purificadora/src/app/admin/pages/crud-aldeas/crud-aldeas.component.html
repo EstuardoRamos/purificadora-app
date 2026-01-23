@@ -2,7 +2,7 @@
   <mat-card-title class="card-title">Gestión de Aldeas</mat-card-title>
 
   <!-- Tabla de Aldeas -->
-  <div class="table-container">
+  <div *ngIf="!mostrarFormulario" class="table-container">
     <table mat-table [dataSource]="aldeas" class="mat-elevation-z8 aldeas-table">
       <!-- Columna: Nombre -->
       <ng-container matColumnDef="nombre">
@@ -27,12 +27,14 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-  </div>
 
-  <!-- Botón Nueva Aldea -->
+    <!-- Botón Nueva Aldea -->
   <button mat-raised-button color="accent" class="nueva-aldea-btn" (click)="abrirFormulario()">
     Nueva Aldea
   </button>
+  </div>
+
+  
 
   <!-- Formulario de Crear/Editar Aldea -->
   <mat-card *ngIf="mostrarFormulario" class="form-card">
