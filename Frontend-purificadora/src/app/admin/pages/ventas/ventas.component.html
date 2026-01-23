@@ -32,7 +32,7 @@
   </div>
 
   <!-- Tabla de Clientes -->
-  <div class="table-container">
+  <div *ngIf="!mostrarFormularioVenta" class="table-container">
     <table mat-table [dataSource]="clientesFiltrados" class="mat-elevation-z8 clientes-table">
       <ng-container matColumnDef="nombre">
         <th mat-header-cell *matHeaderCellDef> Cliente </th>
