@@ -34,17 +34,27 @@
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
+    <!-- Botón Mapa -->
+    <button mat-stroked-button color="primary" (click)="toggleMapa()">
+      <mat-icon>{{ mostrarMapa ? 'list' : 'map' }}</mat-icon>
+      {{ mostrarMapa ? 'Ver Lista' : 'Ver Mapa' }}
+    </button>
+
     <div class="filtro-info">
       <span class="info-label">Día actual:</span>
       <span class="info-valor">{{ diaActualNombre }}</span>
-      <span class="info-separator">|</span>
       <span class="info-label">Clientes mostrados:</span>
       <span class="info-valor">{{ clientesFiltrados.length }}</span>
     </div>
   </div>
 
+  <!-- Contenedor del Mapa (Usamos [hidden] para no destruir el mapa al ocultarlo) -->
+  <div class="map-container" [hidden]="!mostrarMapa">
+    <div id="map"></div>
+  </div>
+
   <!-- Tabla de Clientes -->
-  <div *ngIf="!mostrarFormularioVenta" class="table-container">
+  <div *ngIf="!mostrarFormularioVenta && !mostrarMapa" class="table-container">
     <table mat-table [dataSource]="clientesFiltrados" class="mat-elevation-z8 clientes-table">
       <ng-container matColumnDef="nombre">
         <th mat-header-cell *matHeaderCellDef> Cliente </th>
