@@ -17,6 +17,7 @@ import { Venta } from '../../../interfaces/venta.interface';
 })
 export class ListarVentasComponent implements OnInit {
   ventas: Venta[] = [];
+  ventasOriginales: Venta[] = []; // Copia de seguridad para filtrar localmente
   // Columnas para la vista principal minimalista
   displayedColumns: string[] = ['id', 'cliente', 'metodoPago', 'total', 'fecha', 'estado_pago', 'acciones'];
   expandedElement: Venta | null = null;
@@ -25,7 +26,9 @@ export class ListarVentasComponent implements OnInit {
   fechaInicio: Date | null = null;
   fechaFin: Date | null = null;
   filtroPago: 'todos' | 'pago' | 'credito' = 'todos';
+  textoBusqueda: string = ''; // Variable para el buscador
   totalFiltrado: number = 0;
+  todasLasVentasCargadas: boolean = false; // Bandera para saber si tenemos todo el historial
 
   constructor(private ventasService: VentasService) {}
 
@@ -45,8 +48,9 @@ export class ListarVentasComponent implements OnInit {
 
     this.ventasService.getVentasPorRango(fechaInicio, fechaFin).subscribe({
       next: (data) => {
-        this.ventas = this.filtrarPorMetodoPago(data as Venta[]);
-        this.calcularTotal();
+        this.ventasOriginales = data as Venta[];
+        this.todasLasVentasCargadas = false; // Solo tenemos datos del día
+        this.aplicarFiltros();
       },
       error: (err) => {
         console.error('Error al cargar las ventas del día', err);
@@ -60,8 +64,9 @@ export class ListarVentasComponent implements OnInit {
   listarTodasLasVentas(): void {
     this.ventasService.getVentas().subscribe({
       next: (data) => {
-        this.ventas = this.filtrarPorMetodoPago(data as Venta[]);
-        this.calcularTotal();
+        this.ventasOriginales = data as Venta[];
+        this.todasLasVentasCargadas = true; // Ya tenemos todo el historial
+        this.aplicarFiltros();
       },
       error: (err) => console.error('Error al cargar todas las ventas', err),
     });
@@ -79,8 +84,9 @@ export class ListarVentasComponent implements OnInit {
 
     this.ventasService.getVentasPorRango(fechaInicio, fechaFin).subscribe({
       next: (data) => {
-        this.ventas = this.filtrarPorMetodoPago(data as Venta[]);
-        this.calcularTotal();
+        this.ventasOriginales = data as Venta[];
+        this.todasLasVentasCargadas = false; // Es un rango específico, no todo
+        this.aplicarFiltros();
       },
       error: (err) => {
         if (err?.error?.error) {
@@ -93,26 +99,37 @@ export class ListarVentasComponent implements OnInit {
     });
   }
 
-  onMetodoPagoChange(): void {
-    if (this.fechaInicio || this.fechaFin) {
-      this.filtrarPorFechas();
-    } else {
-      this.listarTodasLasVentas();
+  // Método unificado de filtrado (Pago + Buscador)
+  aplicarFiltros(): void {
+    let filtradas = [...this.ventasOriginales];
+
+    // 1. Filtro por Método de Pago
+    if (this.filtroPago !== 'todos') {
+      filtradas = filtradas.filter((venta) => {
+        const metodo = venta.MetodoPago?.metodo?.toLowerCase() || '';
+        if (this.filtroPago === 'pago') return metodo.includes('pago');
+        return metodo.includes('crédito') || metodo.includes('credito');
+      });
     }
+
+    // 2. Filtro por Buscador (Nombre del Cliente)
+    if (this.textoBusqueda.trim()) {
+      const termino = this.textoBusqueda.toLowerCase().trim();
+      filtradas = filtradas.filter((venta) =>
+        venta.Cliente?.nombre.toLowerCase().includes(termino)
+      );
+    }
+
+    this.ventas = filtradas;
+    this.calcularTotal();
   }
 
-  private filtrarPorMetodoPago(ventas: Venta[]): Venta[] {
-    if (this.filtroPago === 'todos') {
-      return ventas || [];
+  // Busca en todo el historial si no se encuentra en la vista actual
+  buscarGlobalmente(): void {
+    // Si hay texto y aún no hemos cargado todo el historial, lo cargamos
+    if (this.textoBusqueda && !this.todasLasVentasCargadas) {
+      this.listarTodasLasVentas();
     }
-
-    return (ventas || []).filter((venta) => {
-      const metodo = venta.MetodoPago?.metodo?.toLowerCase() || '';
-      if (this.filtroPago === 'pago') {
-        return metodo.includes('pago');
-      }
-      return metodo.includes('crédito') || metodo.includes('credito');
-    });
   }
 
   private calcularTotal(): void {
@@ -131,7 +148,7 @@ export class ListarVentasComponent implements OnInit {
         next: () => {
           alert('Venta eliminada con éxito y stock restaurado.');
           // Refrescamos la lista actual para que desaparezca la venta eliminada
-          this.filtrarPorFechas(); 
+          this.filtrarPorFechas();
         },
         error: (err) => {
           console.error('Error al eliminar la venta', err);

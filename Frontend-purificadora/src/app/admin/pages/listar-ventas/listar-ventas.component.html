@@ -33,13 +33,28 @@
       <mat-label>Método de Pago</mat-label>
       <mat-select
         [(ngModel)]="filtroPago"
-        (selectionChange)="onMetodoPagoChange()"
+        (selectionChange)="aplicarFiltros()"
         [ngModelOptions]="{ standalone: true }"
       >
         <mat-option value="todos">Todos</mat-option>
         <mat-option value="pago">Pago</mat-option>
         <mat-option value="credito">Crédito</mat-option>
       </mat-select>
+    </mat-form-field>
+
+    <!-- Buscador por Nombre -->
+    <mat-form-field appearance="fill" class="filtro-busqueda">
+      <mat-label>Buscar Cliente</mat-label>
+      <input 
+        matInput 
+        [(ngModel)]="textoBusqueda" 
+        (ngModelChange)="aplicarFiltros()" 
+        (keyup.enter)="buscarGlobalmente()"
+        placeholder="Nombre..."
+      >
+      <button mat-icon-button matSuffix (click)="buscarGlobalmente()" title="Buscar en todo el historial">
+        <mat-icon>search</mat-icon>
+      </button>
     </mat-form-field>
 
     <!-- Botones -->

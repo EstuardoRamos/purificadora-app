@@ -11,6 +11,18 @@
     <span>{{ errorMessage }}</span>
   </div>
 
+  <!-- Buscador de Créditos -->
+  <mat-form-field appearance="outline" style="width: 100%; margin-top: 16px;">
+    <mat-label>Buscar Cliente</mat-label>
+    <input 
+      matInput 
+      [(ngModel)]="textoBusqueda" 
+      (ngModelChange)="aplicarFiltro()" 
+      placeholder="Escribe el nombre..."
+    >
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
   <div class="total-pendiente">
     Total pendiente: <strong>{{ totalPendiente | currency:'GTQ' }}</strong>
   </div>

@@ -6,6 +6,10 @@
   margin-bottom: 20px;
 }
 
+.filtro-busqueda {
+  min-width: 200px;
+}
+
 .botones-filtros {
   display: flex;
   gap: 10px;

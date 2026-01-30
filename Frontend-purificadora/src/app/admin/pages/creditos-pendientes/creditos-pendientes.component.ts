@@ -16,6 +16,8 @@ interface VentaPendiente extends Venta {
 })
 export class CreditosPendientesComponent implements OnInit {
   ventasPendientes: VentaPendiente[] = [];
+  ventasOriginales: VentaPendiente[] = [];
+  textoBusqueda: string = '';
   displayedColumns: string[] = ['id', 'cliente', 'telefono', 'total', 'fecha', 'estado', 'acciones'];
   totalPendiente = 0;
   isLoading = false;
@@ -32,11 +34,8 @@ export class CreditosPendientesComponent implements OnInit {
     this.errorMessage = '';
     this.ventasService.getVentasPendientes().subscribe({
       next: (data) => {
-        this.ventasPendientes = this.normalizarVentas(data as any[]);
-        this.totalPendiente = this.ventasPendientes.reduce(
-          (sum, venta) => sum + (venta.total || 0),
-          0
-        );
+        this.ventasOriginales = this.normalizarVentas(data as any[]);
+        this.aplicarFiltro();
         this.isLoading = false;
       },
       error: (err) => {
@@ -47,6 +46,20 @@ export class CreditosPendientesComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  aplicarFiltro(): void {
+    let filtrados = [...this.ventasOriginales];
+
+    if (this.textoBusqueda.trim()) {
+      const termino = this.textoBusqueda.toLowerCase().trim();
+      filtrados = filtrados.filter((venta) =>
+        venta.Cliente?.nombre.toLowerCase().includes(termino)
+      );
+    }
+
+    this.ventasPendientes = filtrados;
+    this.totalPendiente = this.ventasPendientes.reduce((sum, venta) => sum + (venta.total || 0), 0);
   }
 
   pagarCredito(venta: VentaPendiente): void {
