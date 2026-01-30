@@ -104,6 +104,13 @@ exports.createVenta = async (req, res) => {
 
 
 exports.getAllVentas = async (req, res) => {
+    const { search } = req.query;
+
+    const whereCliente = {};
+    if (search) {
+        whereCliente.nombre = { [Op.like]: `%${search}%` };
+    }
+
     try {
         const ventas = await Venta.findAll({
             include: [
@@ -111,6 +118,7 @@ exports.getAllVentas = async (req, res) => {
                     model: Cliente,
                     as: "Cliente",
                     attributes: ["id_cliente", "nombre"],
+                    where: whereCliente, // Filtra por nombre si se envía el parámetro search
                 },
                 {
                     model: Usuario,
@@ -220,7 +228,7 @@ exports.getUltimaVentaByCliente = async (req, res) => {
 };
 
 exports.getVentasByFecha = async (req, res) => {
-    const { fecha_inicio, fecha_fin } = req.query;
+    const { fecha_inicio, fecha_fin, search } = req.query;
 
     try {
         // Validar que las fechas sean válidas
@@ -244,11 +252,17 @@ exports.getVentasByFecha = async (req, res) => {
             },
         };
 
+        const whereCliente = {};
+        if (search) {
+            whereCliente.nombre = { [Op.like]: `%${search}%` };
+        }
+
         // Buscar ventas
         const ventas = await Venta.findAll({
             where: whereClause,
             include: [
-                { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre"] },
+                // Al agregar 'where' en el include, Sequelize filtra las ventas que coincidan con ese cliente
+                { model: Cliente, as: "Cliente", attributes: ["id_cliente", "nombre"], where: whereCliente },
                 { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
                 { model: MetodoPago, as: "MetodoPago", attributes: ["id", "metodo"] },
             ],

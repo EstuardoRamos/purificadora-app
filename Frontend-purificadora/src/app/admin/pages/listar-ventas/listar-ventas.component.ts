@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { VentasService } from '../../services/ventas.service';
 import { Venta } from '../../../interfaces/venta.interface';
@@ -15,7 +17,7 @@ import { Venta } from '../../../interfaces/venta.interface';
     ]),
   ],
 })
-export class ListarVentasComponent implements OnInit {
+export class ListarVentasComponent implements OnInit, OnDestroy {
   ventas: Venta[] = [];
   ventasOriginales: Venta[] = []; // Copia de seguridad para filtrar localmente
   // Columnas para la vista principal minimalista
@@ -29,11 +31,27 @@ export class ListarVentasComponent implements OnInit {
   textoBusqueda: string = ''; // Variable para el buscador
   totalFiltrado: number = 0;
   todasLasVentasCargadas: boolean = false; // Bandera para saber si tenemos todo el historial
+  
+  // Variables para el buscador automático (Debounce)
+  private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
 
   constructor(private ventasService: VentasService) {}
 
   ngOnInit(): void {
     this.listarVentasDelDia();
+    
+    // Configurar el buscador automático: Espera 600ms después de que dejes de escribir
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(600), 
+      distinctUntilChanged() // Solo busca si el texto es diferente al anterior
+    ).subscribe(() => {
+      this.buscarGlobalmente();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
   }
 
   // Listar ventas del día actual
@@ -46,7 +64,7 @@ export class ListarVentasComponent implements OnInit {
     const fechaInicio = inicio.toISOString().split('T')[0];
     const fechaFin = fin.toISOString().split('T')[0];
 
-    this.ventasService.getVentasPorRango(fechaInicio, fechaFin).subscribe({
+    this.ventasService.getVentasPorRango(fechaInicio, fechaFin, this.textoBusqueda).subscribe({
       next: (data) => {
         this.ventasOriginales = data as Venta[];
         this.todasLasVentasCargadas = false; // Solo tenemos datos del día
@@ -62,7 +80,7 @@ export class ListarVentasComponent implements OnInit {
 
   // Listar todas las ventas
   listarTodasLasVentas(): void {
-    this.ventasService.getVentas().subscribe({
+    this.ventasService.getVentas(this.textoBusqueda).subscribe({
       next: (data) => {
         this.ventasOriginales = data as Venta[];
         this.todasLasVentasCargadas = true; // Ya tenemos todo el historial
@@ -82,7 +100,7 @@ export class ListarVentasComponent implements OnInit {
       return;
     }
 
-    this.ventasService.getVentasPorRango(fechaInicio, fechaFin).subscribe({
+    this.ventasService.getVentasPorRango(fechaInicio, fechaFin, this.textoBusqueda).subscribe({
       next: (data) => {
         this.ventasOriginales = data as Venta[];
         this.todasLasVentasCargadas = false; // Es un rango específico, no todo
@@ -112,24 +130,30 @@ export class ListarVentasComponent implements OnInit {
       });
     }
 
-    // 2. Filtro por Buscador (Nombre del Cliente)
-    if (this.textoBusqueda.trim()) {
-      const termino = this.textoBusqueda.toLowerCase().trim();
-      filtradas = filtradas.filter((venta) =>
-        venta.Cliente?.nombre.toLowerCase().includes(termino)
-      );
-    }
+    // NOTA: El filtro de texto ahora se maneja en el backend al hacer la petición.
+    // Aquí solo filtramos localmente por método de pago sobre los resultados que ya trajo el backend.
 
     this.ventas = filtradas;
     this.calcularTotal();
   }
 
-  // Busca en todo el historial si no se encuentra en la vista actual
+  // Ejecuta la búsqueda en el backend
   buscarGlobalmente(): void {
-    // Si hay texto y aún no hemos cargado todo el historial, lo cargamos
-    if (this.textoBusqueda && !this.todasLasVentasCargadas) {
+    // Dependiendo de la vista actual, recargamos los datos con el filtro de búsqueda
+    if (this.fechaInicio && this.fechaFin) {
+      this.filtrarPorFechas();
+    } else if (!this.todasLasVentasCargadas && !this.fechaInicio) {
+      // Si estamos en la vista "del día", buscamos en el día
+      this.listarVentasDelDia();
+    } else {
+      // Si estábamos viendo "todas" o queremos buscar en todo
       this.listarTodasLasVentas();
     }
+  }
+
+  // Método que recibe el evento del input y alimenta al Subject
+  onSearchChange(texto: string): void {
+    this.searchSubject.next(texto);
   }
 
   private calcularTotal(): void {

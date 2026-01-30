@@ -48,7 +48,7 @@
       <input 
         matInput 
         [(ngModel)]="textoBusqueda" 
-        (ngModelChange)="aplicarFiltros()" 
+        (ngModelChange)="onSearchChange($event)" 
         (keyup.enter)="buscarGlobalmente()"
         placeholder="Nombre..."
       >

@@ -23,16 +23,24 @@ export class VentasService {
     return this.http.post(`${this.baseUrl}/ventas/`, venta);
   }
 
-  getVentas(){
-    return this.http.get(`${this.baseUrl}/ventas/`);
+  getVentas(search?: string){
+    let url = `${this.baseUrl}/ventas/`;
+    if (search) {
+      url += `?search=${search}`;
+    }
+    return this.http.get(url);
   }
 
   getVentasPorFecha(fecha: string){
     return this.http.get(`${this.baseUrl}/ventas/fecha?fecha_inicio=${fecha}`);
   }
 
-  getVentasPorRango(fechaInicio: any, fechaFin: any){
-    return this.http.get(`${this.baseUrl}/ventas/fecha?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+  getVentasPorRango(fechaInicio: any, fechaFin: any, search?: string){
+    let url = `${this.baseUrl}/ventas/fecha?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    if (search) {
+      url += `&search=${search}`;
+    }
+    return this.http.get(url);
   }
 
   getReporteSemanal(desde: string, hasta: string) {
@@ -49,8 +57,12 @@ export class VentasService {
     return this.http.get(`${this.baseUrl}/ventas/cliente/${idCliente}/ultima`);
   }
 
-  getVentasPendientes() {
-    return this.http.get(`${this.baseUrl}/ventas/pendientes`);
+  getVentasPendientes(search?: string) {
+    let url = `${this.baseUrl}/ventas/pendientes`;
+    if (search) {
+      url += `?search=${search}`;
+    }
+    return this.http.get(url);
   }
 
   actualizarEstadoVenta(idVenta: number, estado: string) {
