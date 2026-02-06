@@ -131,6 +131,7 @@ exports.getAllVentas = async (req, res) => {
                     attributes: ["id", "metodo"], // Traemos el nombre de la forma de pago
                 },
             ],
+            order: [["fecha", "DESC"]], // Ordenar por fecha (más reciente primero)
         });
 
         res.json(ventas);
@@ -170,6 +171,7 @@ exports.getVentasByUsuario = async (req, res) => {
                 { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
                 { model: MetodoPago, as: "MetodoPago", attributes: ["id", "metodo"] },
             ],
+            order: [["fecha", "DESC"]], // Ordenar por fecha (más reciente primero)
         });
 
         if (ventas.length === 0) {
@@ -192,6 +194,7 @@ exports.getVentasByCliente = async (req, res) => {
                 { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
                 { model: MetodoPago, as: "MetodoPago", attributes: ["id", "metodo"] },
             ],
+            order: [["fecha", "DESC"]], // Ordenar por fecha (más reciente primero)
         });
 
         if (ventas.length === 0) {
@@ -266,6 +269,7 @@ exports.getVentasByFecha = async (req, res) => {
                 { model: Usuario, as: "Usuario", attributes: ["id", "nombre"] },
                 { model: MetodoPago, as: "MetodoPago", attributes: ["id", "metodo"] },
             ],
+            order: [["fecha", "DESC"]], // Ordenar por fecha (más reciente primero)
         });
 
         if (ventas.length === 0) {
